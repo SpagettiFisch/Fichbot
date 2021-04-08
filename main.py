@@ -1,11 +1,11 @@
 import discord
 import random
 import json
-from discord.ext import commands
-from discord.ext.commands import Bot
+#from discord.ext import commands
+#from discord.ext.commands import Bot
 #from modules import wichtelbot
 #from modules import reactionrole
-import time
+#import time
 
 c = open("config.json")
 json_data = json.load(c)
@@ -91,6 +91,37 @@ class MyClient(discord.Client):
 #                        await message.channel.send(f"Du hast nicht die nötigen Rechte dafür <@{userID}>")
             else:
                 await message.delete()
+
+    #Logging
+    async def on_message(self, message):
+        Nachricht = message.content
+        Autor = message.author
+        Channel = message.channel
+        tempus = str(message.created_at).split(".")
+        Guild = message.guild
+        tempus.pop()
+        Datum = str(tempus).split(" ")[0].replace("['", "")
+        Zeit = str(tempus).split(" ")[1].replace("']", "")
+
+        l = open("logs.txt", "a")
+        l.writelines(f'{Autor} hat in {Channel}, auf dem Server {Guild} am {Datum} um {Zeit} "{Nachricht}" geschrieben. \n')
+        l.close()
+
+
+    async def on_message_edit(self, before, after):
+        if before.author != client.user:
+            Nachricht_alt = before.content
+            Nachricht_neu = after.content
+            tempus = str(after.edited_at).split('.')
+            tempus.pop()
+            Datum = str(tempus).split(" ")[0].replace("['", "")
+            Zeit = str(tempus).split(" ")[1].replace("']", "")
+
+            l = open('logs.txt', 'a')
+            l.writelines(f'{before.author} hat in {after.channel} auf {after.guild} am {Datum} um {Zeit} von "{Nachricht_alt}" zu "{Nachricht_neu}" bearbeitet. \n')
+            l.close()
+
+
 
 
 
