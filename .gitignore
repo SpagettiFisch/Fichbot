@@ -1,0 +1,7 @@
+token
+config.json
+users.txt
+modules/VoiceChannel.py
+modules/__pychache__
+logs.txt
+.idea

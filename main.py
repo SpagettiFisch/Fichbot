@@ -16,14 +16,21 @@ prefix = json_data["prefix"]
 class MyClient(discord.Client):
     #einloggen
     async def on_ready(self):
-        print("Ich habe mich eingeloggt. Beep Bop.")
+        print("Ich habe mich eingeloggt.")
 
-    #Wenn Nachricht gepostet wird
+
+    #blacklist
     async def on_message(self, message):
-        print(message)
+        blacklist = ["hi", "gh"]
+        for x in blacklist:
+            print(x)
+            if x in message.content:
+                await message.delete()
+            else:
+                pass
 
 
-        print("Nachricht von: " + str(message.author) + " enthält " + str(message.content))
+    #Bot Commands
         id = str(message).split(' ')[12]
         userID = id.split('=')[1]
         cid = str(message).split(' ')[3]
@@ -38,7 +45,7 @@ class MyClient(discord.Client):
             if  int(ChannelID) != 789425205063581698:
                 await message.add_reaction("🧐")
             pass
-        if int(ChannelID) == 789425205063581698:
+        if int(ChannelID) != 789425205063581698:
             if message.content.startswith(prefix):
                 command = message.content.lower()
                 if command.startswith(f'{prefix}help'):
@@ -48,6 +55,19 @@ class MyClient(discord.Client):
                     await message.channel.send("Du hast eine " + str(Zahl) + " gewürfelt")
                 elif command.startswith(f"{prefix}credits"):
                     await message.author.send("`Dieser Bot wurde von SpagettiFisch programmiert`")
+                elif command.startswith(f"{prefix}test"):
+                    await message.channel.send(f"+dice")
+                    await message.channel.send("!test")
+                elif command.startswith(f"{prefix}stop"):
+                    if int(userID) == 477352031561187328:
+                        await message.channel.send("Ja wie denn? xD")
+                    else:
+                        await message.channel.send(f"NIEMALS <@{userID}>")
+                elif command.startswith(f"{prefix}start"):
+                    if int(userID) == 477352031561187328:
+                        await message.channel.send(f"{prefix}test")
+                    else:
+                        await message.channel.send(f"denk nicht mal dran <@{userID}>")
         #        if message.content.startswith("!stats"):
         #            messages = await message.channel.history(limit=50).flatten()
         #            for i in messages:
@@ -84,16 +104,11 @@ class MyClient(discord.Client):
                         await message.channel.send(f'Du hast gewonnen <@{userID}> :) ')
                     else:
                         await message.channel.send(f'Du hast verloren <@{userID}> :( ')
-#                elif command.startswith(f"{prefix}prefix "):
-#                    if int(userID) == 477352031561187328:
-#                        neuer_Prefix = (f"{str(command.split(' ')[1])}")
-#                    else:
-#                        await message.channel.send(f"Du hast nicht die nötigen Rechte dafür <@{userID}>")
-            else:
-                await message.delete()
+#            else:
+#                await message.delete()
+
 
     #Logging
-    async def on_message(self, message):
         Nachricht = message.content
         Autor = message.author
         Channel = message.channel
@@ -107,19 +122,20 @@ class MyClient(discord.Client):
         l.writelines(f'{Autor} hat in {Channel}, auf dem Server {Guild} am {Datum} um {Zeit} "{Nachricht}" geschrieben. \n')
         l.close()
 
-
     async def on_message_edit(self, before, after):
-        if before.author != client.user:
-            Nachricht_alt = before.content
-            Nachricht_neu = after.content
-            tempus = str(after.edited_at).split('.')
-            tempus.pop()
-            Datum = str(tempus).split(" ")[0].replace("['", "")
-            Zeit = str(tempus).split(" ")[1].replace("']", "")
+#        if Logs:
+            if before.author != client.user:
+                Nachricht_alt = before.content
+                Nachricht_neu = after.content
+                tempus = str(after.edited_at).split('.')
+                tempus.pop()
+                print(tempus)
+                Datum = str(tempus).split(" ")[0].replace("['", "")
+                Zeit = str(tempus).split(" ")[1].replace("']", "")
 
-            l = open('logs.txt', 'a')
-            l.writelines(f'{before.author} hat in {after.channel} auf {after.guild} am {Datum} um {Zeit} von "{Nachricht_alt}" zu "{Nachricht_neu}" bearbeitet. \n')
-            l.close()
+                l = open('logs.txt', 'a')
+                l.writelines(f'{before.author} hat in {after.channel} auf {after.guild} am {Datum} um {Zeit} von "{Nachricht_alt}" zu "{Nachricht_neu}" bearbeitet. \n')
+                l.close()
 
 
 
