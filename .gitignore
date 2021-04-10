@@ -3,5 +3,5 @@ config.json
 users.txt
 modules/VoiceChannel.py
 modules/__pychache__
-.idea
+/.idea
 logs.txt
