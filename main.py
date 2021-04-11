@@ -1,29 +1,30 @@
 import discord
 import random
 import json
-#from discord.ext import commands
-#from discord.ext.commands import Bot
-#from modules import wichtelbot
-#from modules import reactionrole
-#import time
+import sys
+import time
 
 c = open("config.json")
 json_data = json.load(c)
-token = json_data["token"]
-prefix = json_data["prefix"]
+token = json_data["token"] #Token of the Discord Bot
+prefix = json_data["prefix"] #Preifx for Bot Commands
+Logs = json_data["Logs"] #1 is True, each other number is False
+BotOwnerID = json_data["Bot_Owner_ID"] #ID of the person who can use all Bot Commands
+CommandChannelID = json_data["Command_Channel_ID"] #the Channel ID for the most Bot Commands
 
 
 class MyClient(discord.Client):
+
     #einloggen
     async def on_ready(self):
         print("Ich habe mich eingeloggt.")
+        await client.change_presence(activity=discord.Game(name="an mir selbst verzweifeln"))
 
 
     #blacklist
     async def on_message(self, message):
         blacklist = ["hi", "gh"]
         for x in blacklist:
-            print(x)
             if x in message.content:
                 await message.delete()
             else:
@@ -42,10 +43,10 @@ class MyClient(discord.Client):
             await message.add_reaction("🍞")
         #react = 249
         if react == 249:
-            if  int(ChannelID) != 789425205063581698:
+            if  int(ChannelID) != int(CommandChannelID):
                 await message.add_reaction("🧐")
             pass
-        if int(ChannelID) != 789425205063581698:
+        if int(ChannelID) == int(CommandChannelID):
             if message.content.startswith(prefix):
                 command = message.content.lower()
                 if command.startswith(f'{prefix}help'):
@@ -59,12 +60,15 @@ class MyClient(discord.Client):
                     await message.channel.send(f"+dice")
                     await message.channel.send("!test")
                 elif command.startswith(f"{prefix}stop"):
-                    if int(userID) == 477352031561187328:
-                        await message.channel.send("Ja wie denn? xD")
+                    if int(userID) == int(BotOwnerID):
+                        await message.channel.send("Ja wie denn? xD \nIch könnte das ja mal probie... ")
+                        print("Ich geh dann mal offline")
+                        await client.close()
+
                     else:
                         await message.channel.send(f"NIEMALS <@{userID}>")
                 elif command.startswith(f"{prefix}start"):
-                    if int(userID) == 477352031561187328:
+                    if int(userID) == int(BotOwnerID):
                         await message.channel.send(f"{prefix}test")
                     else:
                         await message.channel.send(f"denk nicht mal dran <@{userID}>")
@@ -109,21 +113,23 @@ class MyClient(discord.Client):
 
 
     #Logging
-        Nachricht = message.content
-        Autor = message.author
-        Channel = message.channel
-        tempus = str(message.created_at).split(".")
-        Guild = message.guild
-        tempus.pop()
-        Datum = str(tempus).split(" ")[0].replace("['", "")
-        Zeit = str(tempus).split(" ")[1].replace("']", "")
+        if int(Logs) == 1:
+            Nachricht = message.content
+            Autor = message.author
+            Channel = message.channel
+            tempus = str(message.created_at).split(".")
+            Guild = message.guild
+            tempus.pop()
+            Datum = str(tempus).split(" ")[0].replace("['", "")
+            Zeit = str(tempus).split(" ")[1].replace("']", "")
 
-        l = open("logs.txt", "a")
-        l.writelines(f'{Autor} hat in {Channel}, auf dem Server {Guild} am {Datum} um {Zeit} "{Nachricht}" geschrieben. \n')
-        l.close()
+            l = open("logs.txt", "a")
+            l.writelines(f'{Autor} hat in {Channel}, auf dem Server {Guild} am {Datum} um {Zeit} "{Nachricht}" geschrieben. \n')
+            l.close()
+
 
     async def on_message_edit(self, before, after):
-#        if Logs:
+        if int(Logs) == 1:
             if before.author != client.user:
                 Nachricht_alt = before.content
                 Nachricht_neu = after.content
@@ -136,6 +142,7 @@ class MyClient(discord.Client):
                 l = open('logs.txt', 'a')
                 l.writelines(f'{before.author} hat in {after.channel} auf {after.guild} am {Datum} um {Zeit} von "{Nachricht_alt}" zu "{Nachricht_neu}" bearbeitet. \n')
                 l.close()
+
 
 
 
