@@ -83,7 +83,8 @@ class MyClient(discord.Client):
                 elif command.startswith(f"{prefix}credits"):
                     await message.author.send("`Dieser Bot wurde von SpagettiFisch programmiert`")
                 #Owner Commands
-                elif int(userID) == int(BotOwnerID):
+            elif int(ChannelID) == int(830343228502048808):
+                if int(userID) == int(BotOwnerID):
                     if message.content.startswith(f"{prefix}status"):
                         s = open("status", "w")
                         try:
@@ -129,23 +130,26 @@ class MyClient(discord.Client):
 
                             await message.channel.send(embed=embed)
                         s.close()
-
-
-                elif command.startswith(f"{prefix}stop"):
-                    if int(userID) == int(BotOwnerID):
-                        await message.channel.send("Ja wie denn? xD \nIch könnte das ja mal probie... ")
-                        print("Ich geh dann mal offline")
-                        await client.close()
-                    else:
-                        await message.channel.send(f"NIEMALS <@{userID}>")
-                elif command.startswith(f"{prefix}test"):
-                    await message.channel.send(f"+dice")
-                    await message.channel.send("!test")
-                elif command.startswith(f"{prefix}start"):
-                    if int(userID) == int(BotOwnerID):
-                        await message.channel.send(f"{prefix}test")
-                    else:
-                        await message.channel.send(f"denk nicht mal dran <@{userID}>")
+                    elif command.startswith(f"{prefix}stop"):
+                        if int(userID) == int(BotOwnerID):
+                            await message.channel.send("Ja wie denn? xD \nIch könnte das ja mal probie... ")
+                            print("Ich geh dann mal offline")
+                            await client.close()
+                        else:
+                            await message.channel.send(f"NIEMALS <@{userID}>")
+                    elif command.startswith(f"{prefix}test"):
+                        await message.channel.send(f"+dice")
+                        await message.channel.send("!test")
+                    elif command.startswith(f"{prefix}start"):
+                        if int(userID) == int(BotOwnerID):
+                            await message.channel.send(f"{prefix}test")
+                        else:
+                            await message.channel.send(f"denk nicht mal dran <@{userID}>")
+                    elif command.startswith(f"{prefix}dm"):
+                        Person = await client.fetch_user(command.split(',')[1])
+                        Nachricht = message.content.split(',')[2]
+                        await Person.send(Nachricht)
+                        await message.delete()
 
             #Chat Commands
             elif command.startswith(f"{prefix}dice "):
