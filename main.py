@@ -19,6 +19,33 @@ class MyClient(discord.Client):
     #einloggen
     async def on_ready(self):
         print("Ich habe mich eingeloggt.")
+        #change Status
+        s = open("status", "r")
+        Status = s.read()
+        print(Status)
+        try:
+            if str(Status).lower().split("_", 3)[1] == "game":
+                await client.change_presence(
+                    activity=discord.Game(name=f"{str(Status).split('_', 2)[2]}"))
+
+            elif str(Status).lower().split("_", 3)[1] == "stream":
+                await client.change_presence(
+                    activity=discord.Streaming(name=f"{str(Status).split('_', 5)[2]}",
+                                               url=f"{str(Status).split('_', 5)[3]}"))
+
+            elif str(Status).lower().split("_", 3)[1] == "listen":
+                await client.change_presence(
+                    activity=discord.Activity(type=discord.ActivityType.listening,
+                                              name=f"{str(Status).split('_', 5)[2]}"))
+
+            elif str(Status).lower().split("_", 3)[1] == "watch":
+                await client.change_presence(
+                    activity=discord.Activity(type=discord.ActivityType.watching,
+                                              name=f"{str(Status).split('_', 5)[2]}"))
+        except:
+            print("Ungültiger Status")
+            pass
+        s.close()
 
     #blacklist
     async def on_message(self, message):
@@ -38,30 +65,32 @@ class MyClient(discord.Client):
         react = random.randint(0,500)
         if message.author == client.user:
             return
-        if str(message.author) == "Reyana#7046":
+        elif str(message.author) == "Reyana#7046":
             await message.add_reaction("🍞")
         #react = 249
-        if react == 249:
+        elif react == 249:
             if  int(ChannelID) != int(CommandChannelID):
                 await message.add_reaction("🧐")
             pass
-        if message.content.startswith(prefix):
+        elif message.content.startswith(prefix):
             command = message.content.lower()
             #not Chat Commands
             if int(ChannelID) == int(CommandChannelID):
                 if command.startswith(f'{prefix}help'):
-                    await message.channel.send(f'``` {prefix}help - Zeigt diese Hilfe an \n {prefix}dice <Zahl1>, <Zahl2> würfelt eine Zahl von Zahl1 bis Zahl2 \n {prefix}roulette <BID> - Startet das Roulette, BID= black/red/number ```')
+                    await message.channel.send(f'``` {prefix}help - Zeigt diese Hilfe an \n {prefix}dice <Zahl1>,<Zahl2> würfelt eine Zahl von Zahl1 bis Zahl2 \n {prefix}roulette <BID> - Startet das Roulette, BID= black/red/number ```')
                 elif command.startswith(f"{prefix}credits"):
                     await message.author.send("`Dieser Bot wurde von SpagettiFisch programmiert`")
                 #Owner Commands
                 elif int(userID) == int(BotOwnerID):
                     if message.content.startswith(f"{prefix}status"):
+                        s = open("status", "w")
                         try:
                             if str(message.content).lower().split("_", 3)[1] == "game":
                                 await client.change_presence(
                                     activity=discord.Game(name=f"{str(message.content).split('_', 2)[2]}"))
                                 await message.delete()
                                 await message.channel.send("Status geändert")
+                                s.writelines(message.content)
 
                             if str(message.content).lower().split("_", 3)[1] == "stream":
                                 await client.change_presence(
@@ -69,6 +98,7 @@ class MyClient(discord.Client):
                                                                url=f"{str(message.content).split('_', 5)[3]}"))
                                 await message.delete()
                                 await message.channel.send("Status geändert")
+                                s.writelines(message.content)
 
                             if str(message.content).lower().split("_", 3)[1] == "listen":
                                 await client.change_presence(
@@ -76,6 +106,7 @@ class MyClient(discord.Client):
                                                               name=f"{str(message.content).split('_', 5)[2]}"))
                                 await message.delete()
                                 await message.channel.send("Status geändert")
+                                s.writelines(message.content)
 
                             if str(message.content).lower().split("_", 3)[1] == "watch":
                                 await client.change_presence(
@@ -83,6 +114,8 @@ class MyClient(discord.Client):
                                                               name=f"{str(message.content).split('_', 5)[2]}"))
                                 await message.delete()
                                 await message.channel.send("Status geändert")
+                                s.writelines(message.content)
+
                         except:
                             embed = discord.Embed(title="!status `<option>`", colour=discord.Colour(0xbef134))
                             embed.add_field(name="game", value="`!status_game_<custom game name>`", inline=False)
@@ -93,6 +126,9 @@ class MyClient(discord.Client):
                             embed.add_field(name="auto", value="!status auto", inline=False)
 
                             await message.channel.send(embed=embed)
+                        s.close()
+
+
                 elif command.startswith(f"{prefix}stop"):
                     if int(userID) == int(BotOwnerID):
                         await message.channel.send("Ja wie denn? xD \nIch könnte das ja mal probie... ")
@@ -110,7 +146,12 @@ class MyClient(discord.Client):
                         await message.channel.send(f"denk nicht mal dran <@{userID}>")
 
             #Chat Commands
-
+            elif command.startswith(f"{prefix}dice "):
+                Zahlen = command.split(' ')[1]
+                Zahl1 = Zahlen.split(',')[0]
+                Zahl2 = Zahlen.split(',')[1]
+                Zahl = random.randint(int(Zahl1), int(Zahl2))
+                await message.channel.send(f"Du hast eine {Zahl} gewürfelt")
             elif command.startswith(f"{prefix}roulette "):
                 bid = message.content.split(' ')[1]
                 bid_param = -3
@@ -127,7 +168,6 @@ class MyClient(discord.Client):
                     await message.channel.send('Ungültige Eingabe')
                     return
                 result = random.randint(0, 36)
-                print(result)
                 if bid_param == -1:
                     won = result % 2 == 0 and not result == 0
                 elif bid_param == -2:
@@ -138,8 +178,6 @@ class MyClient(discord.Client):
                     await message.channel.send(f'Du hast gewonnen <@{userID}> :) ')
                 else:
                     await message.channel.send(f'Du hast verloren <@{userID}> :( ')
-#            else:
-#                await message.delete()
 
 
     #Logging
