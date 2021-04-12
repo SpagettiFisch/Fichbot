@@ -3,5 +3,7 @@
   "prefix": "",
   "Logs": "",
   "Bot_Owner_ID": "",
-  "Command_Channel_ID": ""
+  "Command_Channel_ID": "",
+    "Verify_Channel_ID": "",
+  "Verify_Message_ID": ""
 }

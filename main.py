@@ -12,6 +12,8 @@ prefix = json_data["prefix"] #Preifx for Bot Commands
 Logs = json_data["Logs"] #1 is True, each other number is False
 BotOwnerID = json_data["Bot_Owner_ID"] #ID of the person who can use all Bot Commands
 CommandChannelID = json_data["Command_Channel_ID"] #the Channel ID for the most Bot Commands
+VerifyMessageID = json_data["Verify_Message_ID"] #the message ID used for reaction verification
+VerifyChannelID = json_data["Verify_Channel_ID"] # the Channel ID used for reaction verification
 
 
 class MyClient(discord.Client):
@@ -178,6 +180,20 @@ class MyClient(discord.Client):
                     await message.channel.send(f'Du hast gewonnen <@{userID}> :) ')
                 else:
                     await message.channel.send(f'Du hast verloren <@{userID}> :( ')
+            #Links
+            elif command.startswith(f"{prefix}github"):
+                await message.channel.send("Hier geht es zum Github Profil von SpagettiFisch: https://github.com/SpagettiFisch")
+            elif command.startswith(f"{prefix}fichbot"):
+                await message.channel.send("Das bin ich. Was gibt es? Um zu sehen, was ich alles tolles kann, schreib einfach !help")
+                time.sleep(3)
+                await message.channel.send("Meinen Code findest du natürlich auch auf Github: https://github.com/SpagettiFisch/Fichbot")
+            elif command.startswith(f"{prefix}twitch"):
+                await message.channel.send("Falls er irgendwann mal streamen sollte, wirst du ihn hier finden: https://www.twitch.tv/spagettifisch2")
+            elif command.startswith(f"{prefix}ston"):
+                await message.channel.send("Das ist ein ganz einsamer Stein, besuch ihn doch mal ;) https://www.twitch.tv/der_ston")
+            elif command.startswith(f"{prefix}slumpfus"):
+                await message.channel.send("Geht mal zum lieben Slumpfus rüber, dann kann der Fisch endlich seine Bits loswerden^^ https://www.twitch.tv/slumpfus")
+
 
 
     #Logging
@@ -211,6 +227,52 @@ class MyClient(discord.Client):
                 l.writelines(f'{before.author} hat in {after.channel} auf {after.guild} am {Datum} um {Zeit} von "{Nachricht_alt}" zu "{Nachricht_neu}" bearbeitet. \n')
                 l.close()
 
+
+    #Verification
+    async def on_raw_reaction_add(self, reaction):
+        guild = client.get_guild(reaction.guild_id)
+        user = reaction.member
+        member = user
+        ReactionMessageID = str(reaction).split(' ')[1].split('=')[1]
+
+        if int(ReactionMessageID) != int(VerifyMessageID):
+            return
+
+        elif reaction.channel_id != int(VerifyChannelID):
+            print("falscher Channel")
+            return
+
+        elif user != client.user:
+            if str(reaction.emoji) == "🖥":
+                await member.add_roles(discord.utils.get(guild.roles, name="Mortus"))
+            elif str(reaction.emoji) == "🤖":
+                await member.add_roles(discord.utils.get(guild.roles, name="Bot"))
+            elif str(reaction.emoji) == "🫂":
+                await member.add_roles(discord.utils.get(guild.roles, name="Mensch... vielleicht.."))
+            else:
+                return
+
+
+    async def on_raw_reaction_remove(self, reaction):
+        guild = client.get_guild(reaction.guild_id)
+        member = await guild.fetch_member(int(reaction.user_id))
+        user = await client.fetch_user(int(reaction.user_id))
+        ReactionMessageID = str(reaction).split(' ')[1].split('=')[1]
+
+        if int(ReactionMessageID) != int(VerifyMessageID):
+            return
+        elif int(reaction.channel_id) != int(VerifyChannelID):
+            return
+
+        elif user != client.user:
+            if str(reaction.emoji) == "🖥":
+                await member.remove_roles(discord.utils.get(guild.roles, name="Mortus"))
+            elif str(reaction.emoji) == "🤖":
+                await member.remove_roles(discord.utils.get(guild.roles, name="Bot"))
+            elif str(reaction.emoji) == "🫂":
+                await member.remove_roles(discord.utils.get(guild.roles, name="Mensch... vielleicht.."))
+            else:
+                return
 
 client = MyClient()
 client.run(token)
