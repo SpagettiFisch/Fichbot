@@ -5,7 +5,7 @@ import sys
 import time
 import requests
 
-c = open("config.json")
+c = open("BotFiles/config.json")
 json_data = json.load(c)
 token = json_data["token"] #Token of the Discord Bot
 prefix = json_data["prefix"] #Preifx for Bot Commands
@@ -14,6 +14,21 @@ BotOwnerID = json_data["Bot_Owner_ID"] #ID of the person who can use all Bot Com
 CommandChannelID = json_data["Command_Channel_ID"] #the Channel ID for the most Bot Commands
 VerifyMessageID = json_data["Verify_Message_ID"] #the message ID used for reaction verification
 VerifyChannelID = json_data["Verify_Channel_ID"] # the Channel ID used for reaction verification
+b = open("BotFiles/Blacklist", "r")
+
+#blacklist
+async def blacklist(self, message, userID, command):
+    print(1)
+    count = 0
+    for x in b:
+        count += 1
+        if x.replace('\n', '') in command:
+            await message.delete()
+            print("gelöscht")
+#            if count == 1:
+#                await message.channel.send(f"<@{userID}> hat das N-Wort benutzt. STEINIGT IHN!")
+        else:
+            pass
 
 
 class MyClient(discord.Client):
@@ -22,9 +37,8 @@ class MyClient(discord.Client):
     async def on_ready(self):
         print("Ich habe mich eingeloggt.")
         #change Status
-        s = open("status", "r")
+        s = open("BotFiles/status", "r")
         Status = s.read()
-        print(Status)
         try:
             if str(Status).lower().split("_", 3)[1] == "game":
                 await client.change_presence(
@@ -48,23 +62,24 @@ class MyClient(discord.Client):
             print("Ungültiger Status")
             pass
         s.close()
+        try:
+            Person = await client.fetch_user()
+            while True:
+                await Person.send("ping")
+        except:
+            pass
 
-    #blacklist
     async def on_message(self, message):
-        blacklist = ["hi", "gh"]
-        for x in blacklist:
-            if x in message.content:
-                await message.delete()
-            else:
-                pass
-
-
-    #Bot Commands
         id = str(message).split(' ')[12]
         userID = id.split('=')[1]
         cid = str(message).split(' ')[3]
         ChannelID = cid.split('=')[1]
-        react = random.randint(0,500)
+        react = random.randint(0, 500)
+        command = message.content.lower()
+        await blacklist(self, message, userID, command)
+
+
+    #Bot Commands
         if message.author == client.user:
             return
         elif str(message.author) == "Reyana#7046":
@@ -75,23 +90,25 @@ class MyClient(discord.Client):
                 await message.add_reaction("🧐")
             pass
         elif message.content.startswith(prefix):
-            command = message.content.lower()
+
             #not Chat Commands
             if int(ChannelID) == int(CommandChannelID):
                 if command.startswith(f'{prefix}help'):
-                    await message.channel.send(f'``` {prefix}help - Zeigt diese Hilfe an \n {prefix}dice <Zahl1>,<Zahl2> würfelt eine Zahl von Zahl1 bis Zahl2 \n {prefix}roulette <BID> - Startet das Roulette, BID= black/red/number ```')
+                    await message.channel.send(f'``` {prefix}help - Zeigt diese Hilfe an \n {prefix}dice <Zahl 1>,<Zahl 2> würfelt eine Zahl von Zahl 1 bis Zahl 2 \n {prefix}roulette <BID> - Startet das Roulette, BID= black/red/number ```')
                 elif command.startswith(f"{prefix}credits"):
                     await message.author.send("`Dieser Bot wurde von SpagettiFisch programmiert`")
+
                 #Owner Commands
-            elif int(ChannelID) == int(830343228502048808):
+            elif int(ChannelID) == int(830343228502048808) or str(message.channel) == "Direct Message with SpagettiFisch#8888":
                 if int(userID) == int(BotOwnerID):
                     if message.content.startswith(f"{prefix}status"):
-                        s = open("status", "w")
+                        s = open("BotFiles/status", "w")
                         try:
                             if str(message.content).lower().split("_", 3)[1] == "game":
                                 await client.change_presence(
                                     activity=discord.Game(name=f"{str(message.content).split('_', 2)[2]}"))
-                                await message.delete()
+                                if not "Direct Message with" in str(message.channel):
+                                    await message.delete()
                                 await message.channel.send("Status geändert")
                                 s.writelines(message.content)
 
@@ -99,7 +116,8 @@ class MyClient(discord.Client):
                                 await client.change_presence(
                                     activity=discord.Streaming(name=f"{str(message.content).split('_', 5)[2]}",
                                                                url=f"{str(message.content).split('_', 5)[3]}"))
-                                await message.delete()
+                                if not "Direct Message with" in str(message.channel):
+                                    await message.delete()
                                 await message.channel.send("Status geändert")
                                 s.writelines(message.content)
 
@@ -107,7 +125,8 @@ class MyClient(discord.Client):
                                 await client.change_presence(
                                     activity=discord.Activity(type=discord.ActivityType.listening,
                                                               name=f"{str(message.content).split('_', 5)[2]}"))
-                                await message.delete()
+                                if not "Direct Message with" in str(message.channel):
+                                    await message.delete()
                                 await message.channel.send("Status geändert")
                                 s.writelines(message.content)
 
@@ -115,7 +134,8 @@ class MyClient(discord.Client):
                                 await client.change_presence(
                                     activity=discord.Activity(type=discord.ActivityType.watching,
                                                               name=f"{str(message.content).split('_', 5)[2]}"))
-                                await message.delete()
+                                if not "Direct Message with" in str(message.channel):
+                                    await message.delete()
                                 await message.channel.send("Status geändert")
                                 s.writelines(message.content)
 
@@ -134,7 +154,9 @@ class MyClient(discord.Client):
                         if int(userID) == int(BotOwnerID):
                             await message.channel.send("Ja wie denn? xD \nIch könnte das ja mal probie... ")
                             print("Ich geh dann mal offline")
+                            client.clear()
                             await client.close()
+                            await sys.exit()
                         else:
                             await message.channel.send(f"NIEMALS <@{userID}>")
                     elif command.startswith(f"{prefix}test"):
@@ -146,12 +168,26 @@ class MyClient(discord.Client):
                         else:
                             await message.channel.send(f"denk nicht mal dran <@{userID}>")
                     elif command.startswith(f"{prefix}dm"):
-                        Person = await client.fetch_user(command.split(',')[1])
-                        Nachricht = message.content.split(',')[2]
+                        Person = await client.fetch_user(command.split('+')[1])
+                        Nachricht = message.content.split('+')[2]
                         await Person.send(Nachricht)
-                        await message.delete()
+                        if not "Direct Message with" in str(message.channel):
+                            await message.delete()
+                    elif command.startswith(f"{prefix}ki"):
+                        Channel = await client.fetch_channel(command.split('+')[1])
+                        Nachricht = message.content.split('+')[2]
+                        await Channel.send(Nachricht)
+                        if not "Direct Message with" in str(message.channel):
+                            await message.delete()
 
             #Chat Commands
+            elif command.startswith(f"{prefix}witz"):
+                witz = requests.get("https://v2.jokeapi.dev/joke/Any?lang=de&format=txt&type=twopart")
+                witz = witz.text
+                witz = witz.splitlines()
+                witz = [witz[0], witz[2]]
+                witz = str(witz).replace("['", "").replace("']", "")
+                await message.channel.send(witz.replace("', '", ""))
             elif command.startswith(f"{prefix}dice "):
                 Zahlen = command.split(' ')[1]
                 Zahl1 = Zahlen.split(',')[0]
@@ -196,7 +232,7 @@ class MyClient(discord.Client):
             elif command.startswith(f"{prefix}ston"):
                 await message.channel.send("Das ist ein ganz einsamer Stein, besuch ihn doch mal ;) https://www.twitch.tv/der_ston")
             elif command.startswith(f"{prefix}slumpfus"):
-                await message.channel.send("Geht mal zum lieben Slumpfus rüber, dann kann der Fisch endlich seine Bits loswerden^^ https://www.twitch.tv/slumpfus")
+                await message.channel.send("Geht mal zum lieben Slumpfus rüber, lasst einen Follow und Liebe da, dann kann der Fisch endlich seine Bits loswerden^^ https://www.twitch.tv/slumpfus")
 
 
 
@@ -208,12 +244,39 @@ class MyClient(discord.Client):
             tempus = str(message.created_at).split(".")
             Guild = message.guild
             tempus.pop()
+            try:
+                Datum = str(tempus).split(" ")[0].replace("['", "")
+                Zeit = str(tempus).split(" ")[1].replace("']", "")
+                l = open("BotFiles/logs.txt", "a")
+                l.writelines(f'\n{Autor} hat in {Channel}, auf dem Server {Guild} am {Datum} um {Zeit} "{Nachricht}" geschrieben.')
+                l.close()
+            except:
+                l = open("BotFiles/logs.txt", "a")
+                l.writelines(f'\nFEHLER "{Nachricht}" von {Autor}')
+                l.close()
+
+    async def on_message_delete(self, message):
+        print(message)
+        if int(Logs) == 1:
+            Nachricht = message.content
+            Autor = message.author
+            Channel = message.channel
+            tempus = str(message.created_at).split(".")
+            Guild = message.guild
+            tempus.pop()
             Datum = str(tempus).split(" ")[0].replace("['", "")
             Zeit = str(tempus).split(" ")[1].replace("']", "")
+            try:
 
-            l = open("logs.txt", "a")
-            l.writelines(f'{Autor} hat in {Channel}, auf dem Server {Guild} am {Datum} um {Zeit} "{Nachricht}" geschrieben. \n')
-            l.close()
+                l = open("BotFiles/logs.txt", "a")
+                l.writelines(
+                    f'\n{Autor} hat in {Channel}, auf dem Server {Guild} am {Datum} um {Zeit} "{Nachricht}" geschrieben.')
+                l.close()
+            except:
+                l = open("BotFiles/logs.txt", "a")
+                l.writelines(
+                    f'FEHLER "\n{Nachricht}" von {Autor}')
+                l.close()
 
 
     async def on_message_edit(self, before, after):
@@ -221,15 +284,20 @@ class MyClient(discord.Client):
             if before.author != client.user:
                 Nachricht_alt = before.content
                 Nachricht_neu = after.content
-                tempus = str(after.edited_at).split('.')
-                tempus.pop()
-                print(tempus)
-                Datum = str(tempus).split(" ")[0].replace("['", "")
-                Zeit = str(tempus).split(" ")[1].replace("']", "")
+                try:
 
-                l = open('logs.txt', 'a')
-                l.writelines(f'{before.author} hat in {after.channel} auf {after.guild} am {Datum} um {Zeit} von "{Nachricht_alt}" zu "{Nachricht_neu}" bearbeitet. \n')
-                l.close()
+                    tempus = str(after.edited_at).split('.')
+                    tempus.pop()
+                    Datum = str(tempus).split(" ")[0].replace("['", "")
+                    Zeit = str(tempus).split(" ")[1].replace("']", "")
+                    l = open('BotFiles/logs.txt', 'a')
+                    l.writelines(f'\n{before.author} hat in {after.channel} auf {after.guild} am {Datum} um {Zeit} von "{Nachricht_alt}" zu "{Nachricht_neu}" bearbeitet.')
+                    l.close()
+                except:
+                    l = open("BotFiles/logs.txt", "a")
+                    l.writelines(
+                        f'\nFEHLER(BEARBEITET) "{Nachricht_neu}" von {before.author}')
+                    l.close()
 
 
     #Verification
