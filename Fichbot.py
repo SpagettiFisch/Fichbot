@@ -24,21 +24,16 @@ async def Blacklist(self, message, userID, command):
     checking = True
     while True:
         if checking == True:
-            print(checking)
             B = blacklist.splitlines(False)
             Anzahl = len(B)
-            print(B)
             bw = B.pop(count)
             count += 1
-            print(count)
             if bw.replace('\n', '') in Inhalt:
                 await message.delete()
 #                    await message.channel.send("1")
             elif count == Anzahl:
                 checking = False
-            print(Anzahl)
         else:
-            print("!")
             return
 
 
@@ -81,7 +76,6 @@ class MyClient(discord.Client):
             pass
 
     async def on_message(self, message):
-        print("1")
         id = str(message).split(' ')[12]
         userID = id.split('=')[1]
         cid = str(message).split(' ')[3]
@@ -102,7 +96,6 @@ class MyClient(discord.Client):
                 await message.add_reaction("🧐")
             pass
         elif message.content.startswith(prefix):
-            print("2")
 
             #not Chat Commands
             if int(ChannelID) == int(CommandChannelID):
@@ -113,7 +106,6 @@ class MyClient(discord.Client):
 
                 #Owner Commands
             elif int(ChannelID) == int(830343228502048808) or str(message.channel) == "Direct Message with SpagettiFisch#7613":
-                print("3")
                 if int(userID) == int(BotOwnerID):
                     if message.content.startswith(f"{prefix}status"):
                         s = open("BotFiles/status", "w")
@@ -182,7 +174,6 @@ class MyClient(discord.Client):
                     else:
                         await message.channel.send(f"denk nicht mal dran <@{userID}>")
                 elif command.startswith(f"{prefix}dm"):
-                    print("4")
                     Person = await client.fetch_user(command.split('+')[1])
                     Nachricht = message.content.split('+')[2]
                     await Person.send(Nachricht)
@@ -190,7 +181,6 @@ class MyClient(discord.Client):
                     if not "Direct Message with" in str(message.channel):
                         await message.delete()
                 elif command.startswith(f"{prefix}ki"):
-                    print("4")
                     Channel = await client.fetch_channel(command.split('+')[1])
                     Nachricht = message.content.split('+')[2]
                     await Channel.send(Nachricht)
