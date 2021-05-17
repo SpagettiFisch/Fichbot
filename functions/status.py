@@ -19,7 +19,7 @@ async def status(Status, client, discord, s):
                 activity=discord.Activity(type=discord.ActivityType.watching,
                                           name=f"{str(Status).split('_', 5)[2]}"))
         elif "mode='w'" in str(s):
-            s.writelines(Status)
+            s.writelines(str(Status))
     except:
         print("Ungültiger Status")
         pass

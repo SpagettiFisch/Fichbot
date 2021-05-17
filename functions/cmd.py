@@ -17,32 +17,78 @@ async def Dice(command, random, message):
         await message.channel.send("Falsche Eingabe, ZufallszaHl zwischen 1 und 6")
     await message.channel.send(f"Du hast eine {Zahl} gewürfelt")
 
-async def Roulette(random, message, userID):
-    bid = message.content.split(' ')[1]
-    bid_param = -3
-    if bid.lower() == "black":
-        bid_param = -1
-    elif bid.lower() == "red":
-        bid_param = -2
-    else:
-        try:
-            bid_param = int(bid)
-        except:
-            bid_param = -3
-    if bid_param == -3:
-        await message.channel.send('Ungültige Eingabe')
+async def Roulette(random, message, userID, discord):
+    try:
+        gesetzt = message.content.split(' ')[2]
+
+        uxp = open(f"XPFiles/{userID}.txt", "r")
+        uXP = uxp.readline()
+        uxp.close()
+
+        if float(uXP) < float(gesetzt):
+            await message.channel.send("Du hast nicht genügend XP")
+            return
+
+
+        bid = message.content.split(' ')[1]
+        bid_param = -3
+
+
+        if bid.lower() == "black":
+            bid_param = -1
+            farbe = True
+        elif bid.lower() == "red":
+            bid_param = -2
+            farbe = True
+        else:
+            try:
+                bid_param = int(bid)
+                farbe = False
+            except:
+                farbe = False
+                bid_param = -3
+
+
+        if bid_param == -3:
+            await message.channel.send('Ungültige Eingabe')
+            return
+        result = random.randint(0, 36)
+        if bid_param == -1:
+            won = result % 2 == 0 and not result == 0
+        elif bid_param == -2:
+            won = result % 2 == 1
+        else:
+            won = result == bid_param
+
+
+        if farbe:
+            multiplier = 1.5
+        else:
+            multiplier = 3
+
+        if won:
+            erhalten = float(multiplier) * float(gesetzt)
+            xp_gewonnen = float(erhalten) - float(gesetzt)
+            uXP = float(uXP) + float(xp_gewonnen)
+            u = open(f"XPFiles/{userID}.txt", "w+")
+            u.writelines(str(uXP))
+            u.close()
+            user_name = str(message.author).split('#')[0]
+            embed = discord.Embed(title="user_name",
+                                  color=discord.Colour(0x15f00a))
+            embed.add_field(name="GEWONNEN",
+                            value=f"Du hast {xp_gewonnen} XP bekommen^^")
+        else:
+            embed = discord.Embed(title="user_name",
+                                  color=discord.Colour(0xf00a0a))
+            embed.add_field(name="VERLOREN",
+                            value=f"Du hast {gesetzt} XP verloren :(")
+
+    except:
+        await message.channel.send("Da ist ein Fehler aufgetreten :/")
         return
-    result = random.randint(0, 36)
-    if bid_param == -1:
-        won = result % 2 == 0 and not result == 0
-    elif bid_param == -2:
-        won = result % 2 == 1
-    else:
-        won = result == bid_param
-    if won:
-        await message.channel.send(f'Du hast gewonnen <@{userID}> :) ')
-    else:
-        await message.channel.send(f'Du hast verloren <@{userID}> :( ')
+
+
 
 async def Credits(message):
     await message.author.send("`Dieser Bot wurde von SpagettiFisch programmiert`")

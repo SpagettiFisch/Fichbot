@@ -4,19 +4,31 @@ import json
 import sys
 import time
 import requests
-from functions import Blacklist, status, cmd, OwnerCMD, React
+import math
+import sqlite3
+from functions import Blacklist, status, cmd, OwnerCMD, React, xp
 
 c = open("BotFiles/config.json")
 json_data = json.load(c)
 token = json_data["token"] #Token of the Discord Bot
 prefix = json_data["prefix"] #Preifx for Bot Commands
-Logs = json_data["Logs"] #1 is True, each other number is False
+Logs = json_data["Logs"] #should Logging be enabled
 BotOwnerID = json_data["Bot_Owner_ID"] #ID of the person who can use all Bot Commands
 CommandChannelID = json_data["Command_Channel_ID"] #the Channel ID for the most Bot Commands
 VerifyMessageID = json_data["Verify_Message_ID"] #the message ID used for reaction verification
 VerifyChannelID = json_data["Verify_Channel_ID"] # the Channel ID used for reaction verification
+bl = json_data["Blacklist"]
 b = open("BotFiles/Blacklist", "r")
 blacklist = b.read()
+
+
+con = sqlite3.connect("BotFiles/xp.sqlite")
+cur = con.cursor()
+
+cur.execute("CREATE TABLE IF NOT EXISTS users (id number PRIMARY KEY, username text, nickname text, color text, avatar text, experience number)")
+
+
+
 
 
 class MyClient(discord.Client):
@@ -36,7 +48,10 @@ class MyClient(discord.Client):
         cid = str(message).split(' ')[3]
         ChannelID = cid.split('=')[1]
         command = message.content.lower()
-        await Blacklist.Blacklist(message, userID, command, blacklist)
+        if bl:
+            await Blacklist.Blacklist(message, userID, command, blacklist)
+        if not "direct message with" in str(message.channel).lower():
+            await xp.XP(message, userID, cur, con)
 
 
 
@@ -51,7 +66,20 @@ class MyClient(discord.Client):
                     if command.startswith(f'{prefix}help'):
                         await cmd.Help(message, prefix, discord, command)
 
+                    elif command.startswith(f"{prefix}xp"):
+                        await xp.xp_request(message, math, discord, random, userID)
 
+                    elif command.startswith(f"{prefix}uxp"):
+                        await xp.user_xp_request(message, math, client, discord, random)
+
+                    elif command.startswith(f"{prefix}addxp"):
+                        await xp.add_xp(message, random, client, discord)
+
+                    elif command.startswith(f"{prefix}removexp"):
+                        await xp.remove_xp(message, random, client, discord)
+
+                    elif command.startswith(f"{prefix}resetxp"):
+                        await xp.reset_xp(message, random, client, discord)
 
                     elif command.startswith(f"{prefix}credits"):
                         await cmd.Credits(message)
@@ -98,7 +126,7 @@ class MyClient(discord.Client):
 
 
                 elif command.startswith(f"{prefix}roulette "):
-                    await cmd.Roulette(random, message, userID)
+                    await cmd.Roulette(random, message, userID, discord)
 
 
 
@@ -131,7 +159,7 @@ class MyClient(discord.Client):
 
 
         #Logging
-            if int(Logs) == 1:
+            if Logs:
                 Nachricht = message.content
                 Autor = message.author
                 Channel = message.channel
@@ -152,7 +180,7 @@ class MyClient(discord.Client):
 
 
     async def on_message_edit(self, before, after):
-        if int(Logs) == 1:
+        if Logs:
             if before.author != client.user:
                 Nachricht_alt = before.content
                 Nachricht_neu = after.content
