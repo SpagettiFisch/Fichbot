@@ -1,204 +1,265 @@
-async def XP(message, userID, cur, con):
-    try:
-        uxp = open(f"XPFiles/{userID}.txt", "r")
-        uXP = uxp.readline()
-        uxp.close()
-    except:
-        pass
+import discord
 
-    u = open(f"XPFiles/{userID}.txt", "w+")
+async def XP(message, userID, cur, con):
     Laenge = len(message.content)
     Laenge /= 25
     if Laenge > 25:
         Laenge = 25
-    try:
-        neueXP = float(uXP) + float(Laenge)
-    except:
-        neueXP = Laenge
+    XPs = Laenge
 
-    u.writelines(str(neueXP))
-    u.close()
     try:
-        cur.execute(f"INSERT INTO users VALUES ({userID},'{str(message.author).split('#')[0]}','{message.author.nick}','{message.author.color}','{str(message.author.avatar_url).removeprefix('https://').removesuffix('?size=1024')}','{neueXP}')")
+        cur.execute(f"INSERT INTO users VALUES ({userID},'{str(message.author).split('#')[0]}','{message.author.nick}','{message.author.color}','{str(message.author.avatar_url).removeprefix('https://').removesuffix('?size=1024')}','{XPs}')")
         con.commit()
     except:
-        cur.execute(f"UPDATE users SET experience = experience + {Laenge}, color = '{message.author.color}', nickname = '{message.author.nick}', avatar = '{str(message.author.avatar_url).removeprefix('https://').removesuffix('?size=1024')}', username = '{str(message.author).split('#')[0]}' WHERE id = {userID}")
+        cur.execute(f"UPDATE users SET experience = experience + {XPs}, color = '{message.author.color}', nickname = '{message.author.nick}', avatar = '{str(message.author.avatar_url).removeprefix('https://').removesuffix('?size=1024')}', username = '{str(message.author).split('#')[0]}' WHERE id = {userID}")
         con.commit()
 
 
-async def xp_request(message, math, discord, random, userID):
+async def xp_request(message, math, discord, userID, cur):
     try:
-        uxp = open(f"XPFiles/{userID}.txt", "r")
-        uXP = uxp.readline()
-        uxp.close()
+        userxp = cur.execute(f"SELECT experience FROM users WHERE id = {userID}")
+        userxp = cur.fetchall()
+        userxp = str(userxp).removesuffix(",)]").removeprefix("[(")
+
+        farbe = cur.execute(f"SELECT color FROM users WHERE id = {userID}")
+        farbe = cur.fetchall()
+        farbe = f'''0x{str(farbe).removesuffix("',)]").removeprefix("[('#")}'''
+        farbe = int(farbe, 0)
+
+        nick = cur.execute(f"SELECT nickname FROM users WHERE id = {userID}")
+        nick = cur.fetchall()
+        nick = str(nick).removesuffix("',)]").removeprefix("[('")
 
     except:
         await message.channel.send("Benutzer nicht vorhanden")
         return
 
 
-    r = lambda: random.randint(0, 255)
-    Farbe = '%02X%02X%02X' % (r(), r(), r())
-    Farbe = f"0x{Farbe}"
-    Farbe = int(Farbe, 0)
-
 
     try:
-        roundedXP = math.floor(float(uXP))
+        roundedXP = math.floor(float(userxp))
 
     except:
-        await message.channel.send("sorry :ccc \n Du hast wohl nicht genug XP")
+        await message.channel.send("sorry :ccc \nDu hast wohl nicht genug XP")
         return
-
 
     user_name = str(message.author).split('#')[0]
-    embed = discord.Embed(title=str(user_name),
-                          color=Farbe)
+
+    if nick == "None":
+        embed = discord.Embed(title=str(user_name),
+                            color=farbe)
+    else:
+        embed = discord.Embed(title=str(user_name),
+                            color=farbe,
+                            description=nick)
+
     embed.add_field(name="XP",
                     value=roundedXP)
     await message.channel.send(embed=embed)
 
 
 
-async def user_xp_request(message, math, client, discord, random):
+async def user_xp_request(message, math, client, discord, cur):
+    userid = message.content.split(' ')[1]
+
+    user = await client.fetch_user(userid)
+
     try:
-        UserID = message.content.split(' ')[1]
-        user = await client.fetch_user(UserID)
-        uxp = open(f"XPFiles/{UserID}.txt", "r")
-        uXP = uxp.readline()
-        uxp.close()
+        userxp = cur.execute(f"SELECT experience FROM users WHERE id = {userid}")
+        userxp = cur.fetchall()
+        userxp = str(userxp).removesuffix(",)]").removeprefix("[(")
+
+        farbe = cur.execute(f"SELECT color FROM users WHERE id = {userid}")
+        farbe = cur.fetchall()
+        farbe = f'''0x{str(farbe).removesuffix("',)]").removeprefix("[('#")}'''
+        farbe = int(farbe, 0)
+
+        nick = cur.execute(f"SELECT nickname FROM users WHERE id = {userid}")
+        nick = cur.fetchall()
+        nick = str(nick).removesuffix("',)]").removeprefix("[('")
 
     except:
         await message.channel.send("Benutzer nicht vorhanden")
         return
 
 
-    user_name = str(user).split('#')[0]
-
-    r = lambda: random.randint(0, 255)
-    farbe = '%02X%02X%02X' % (r(), r(), r())
-    farbe = f"0x{farbe}"
-    farbe = int(farbe, 0)
-
 
     try:
-        roundedXP = math.floor(float(uXP))
+        roundedXP = math.floor(float(userxp))
 
     except:
-        await message.channel.send(f"{user_name} hat nicht genügend XP")
+        await message.channel.send("der User hat nicht genügend XP")
         return
 
+    user_name = str(user).split('#')[0]
 
-    embed = discord.Embed(title=user_name,
-                          color=farbe)
+
+    if nick == "None":
+        embed = discord.Embed(title=str(user_name),
+                            color=farbe)
+    else:
+        embed = discord.Embed(title=str(user_name),
+                            color=farbe,
+                            description=nick)
+
     embed.add_field(name="XP",
                     value=roundedXP)
     await message.channel.send(embed=embed)
 
 
 
-async def add_xp(message, random, client, discord):
+async def add_xp(message, cur, con, math):
+    cur = con.cursor()
+
     try:
-        UserID = message.content.split(' ')[1]
-        user = await client.fetch_user(UserID)
-        uxp = open(f"XPFiles/{UserID}.txt", "r")
-        uXP = uxp.readline()
-        uxp.close()
+        userid = message.content.split(' ')[1]
+        
+        userxp = cur.execute(f"SELECT experience FROM users WHERE id = {userid}")
+        userxp = cur.fetchall()
+        userxp = str(userxp).removesuffix(",)]").removeprefix("[(")
 
-    except:
-        await message.channel.send("Benutzer nicht vorhanden")
-        return
+        farbe = cur.execute(f"SELECT color FROM users WHERE id = {userid}")
+        farbe = cur.fetchall()
+        farbe = f'''0x{str(farbe).removesuffix("',)]").removeprefix("[('#")}'''
+        farbe = int(farbe, 0)
 
-    user_name = str(user).split('#')[0]
+        nick = cur.execute(f"SELECT nickname FROM users WHERE id = {userid}")
+        nick = cur.fetchall()
+        nick = str(nick).removesuffix("',)]").removeprefix("[('")
 
-    r = lambda: random.randint(0, 255)
-    farbe = '%02X%02X%02X' % (r(), r(), r())
-    farbe = f"0x{farbe}"
-    farbe = int(farbe, 0)
+        user = cur.execute(f"SELECT username FROM users WHERE id = {userid}")
+        user = cur.fetchall()
+        user_name = str(user).removesuffix("',)]").removeprefix("[('")
 
-
-    added = message.content.split(' ')[2]
-    uXP = float(uXP) + int(added)
-
-
-    u = open(f"XPFiles/{UserID}.txt", "w+")
-    u.writelines(str(uXP))
-    u.close()
-
-    #roundedXP = math.floor(float(uXP))
-    roundedXP = round(float(uXP))
-
-    embed = discord.Embed(title=user_name,
-                          color=farbe)
-    embed.add_field(name="XP",
-                    value=roundedXP)
-    await message.channel.send(embed=embed)
-
-
-
-async def remove_xp(message, random, client, discord):
-    try:
-        UserID = message.content.split(' ')[1]
-        user = await client.fetch_user(UserID)
-        uxp = open(f"XPFiles/{UserID}.txt", "r")
-        uXP = uxp.readline()
-        uxp.close()
 
     except:
         await message.channel.send("Benutzer nicht vorhanden")
         return
 
-    user_name = str(user).split('#')[0]
 
-    r = lambda: random.randint(0, 255)
-    farbe = '%02X%02X%02X' % (r(), r(), r())
-    farbe = f"0x{farbe}"
-    farbe = int(farbe, 0)
+    try:
+        added = message.content.split(' ')[2]
+    except:
+        await message.channel.send("Fehlender Parameter: XP")
+        return
+    userxp = float(userxp) + float(added)
+    
+    cur.execute(f"UPDATE users SET experience = experience + {float(added)} WHERE id = {userid}")
+    con.commit
 
+    
 
-    removed = message.content.split(' ')[2]
-    uXP = float(uXP) - int(removed)
+    roundedXP = math.floor(float(userxp))
 
-    if uXP < 0:
-        uXP = 0
+    if nick == "None":
+        embed = discord.Embed(title=str(user_name),
+                            color=farbe)
+    else:
+        embed = discord.Embed(title=str(user_name),
+                            color=farbe,
+                            description=nick)
 
-
-    u = open(f"XPFiles/{UserID}.txt", "w+")
-    u.writelines(str(uXP))
-    u.close()
-
-    #roundedXP = math.floor(float(uXP))
-    roundedXP = round(float(uXP))
-
-    embed = discord.Embed(title=user_name,
-                          color=farbe)
     embed.add_field(name="XP",
                     value=roundedXP)
     await message.channel.send(embed=embed)
 
 
 
-async def reset_xp(message, random, client, discord):
+async def remove_xp(message, cur, con, math):
+    try:
+        userid = message.content.split(' ')[1]
+        
+        userxp = cur.execute(f"SELECT experience FROM users WHERE id = {userid}")
+        userxp = cur.fetchall()
+        userxp = str(userxp).removesuffix(",)]").removeprefix("[(")
 
-    UserID = message.content.split(' ')[1]
-    user = await client.fetch_user(UserID)
-    user_name = str(user).split('#')[0]
+        farbe = cur.execute(f"SELECT color FROM users WHERE id = {userid}")
+        farbe = cur.fetchall()
+        farbe = f'''0x{str(farbe).removesuffix("',)]").removeprefix("[('#")}'''
+        farbe = int(farbe, 0)
 
-    r = lambda: random.randint(0, 255)
-    farbe = '%02X%02X%02X' % (r(), r(), r())
-    farbe = f"0x{farbe}"
-    farbe = int(farbe, 0)
+        nick = cur.execute(f"SELECT nickname FROM users WHERE id = {userid}")
+        nick = cur.fetchall()
+        nick = str(nick).removesuffix("',)]").removeprefix("[('")
+
+        user = cur.execute(f"SELECT username FROM users WHERE id = {userid}")
+        user = cur.fetchall()
+        user_name = str(user).removesuffix("',)]").removeprefix("[('")
 
 
-    uXP = 0
+    except:
+        await message.channel.send("Benutzer nicht vorhanden")
+        return
 
 
-    u = open(f"XPFiles/{UserID}.txt", "w+")
-    u.writelines(str(uXP))
-    u.close()
+    try:
+        added = message.content.split(' ')[2]
+    except:
+        await message.channel.send("Fehlender Parameter: XP")
+        return
 
-    embed = discord.Embed(title=user_name,
-                          color=farbe)
+    userxp = float(userxp) - float(added)
+    
+    cur.execute(f"UPDATE users SET experience = experience - {float(added)} WHERE id = {userid}")
+    con.commit
+
+    
+
+    roundedXP = math.floor(float(userxp))
+
+    if nick == "None":
+        embed = discord.Embed(title=str(user_name),
+                            color=farbe)
+    else:
+        embed = discord.Embed(title=str(user_name),
+                            color=farbe,
+                            description=nick)
+
     embed.add_field(name="XP",
-                    value=uXP)
+                    value=roundedXP)
+    await message.channel.send(embed=embed)
+
+
+
+async def reset_xp(message, cur, con):
+    try:
+        userid = message.content.split(' ')[1]
+        
+        userxp = cur.execute(f"SELECT experience FROM users WHERE id = {userid}")
+        userxp = cur.fetchall()
+        userxp = str(userxp).removesuffix(",)]").removeprefix("[(")
+
+        farbe = cur.execute(f"SELECT color FROM users WHERE id = {userid}")
+        farbe = cur.fetchall()
+        farbe = f'''0x{str(farbe).removesuffix("',)]").removeprefix("[('#")}'''
+        farbe = int(farbe, 0)
+
+        nick = cur.execute(f"SELECT nickname FROM users WHERE id = {userid}")
+        nick = cur.fetchall()
+        nick = str(nick).removesuffix("',)]").removeprefix("[('")
+
+        user = cur.execute(f"SELECT username FROM users WHERE id = {userid}")
+        user = cur.fetchall()
+        user_name = str(user).removesuffix("',)]").removeprefix("[('")
+
+
+    except:
+        await message.channel.send("Benutzer nicht vorhanden")
+        return
+
+    
+    cur.execute(f"UPDATE users SET experience = 0 WHERE id = {userid}")
+    con.commit
+
+
+    if nick == "None":
+        embed = discord.Embed(title=str(user_name),
+                            color=farbe)
+    else:
+        embed = discord.Embed(title=str(user_name),
+                            color=farbe,
+                            description=nick)
+
+    embed.add_field(name="XP",
+                    value=0)
     await message.channel.send(embed=embed)

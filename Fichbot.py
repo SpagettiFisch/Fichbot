@@ -67,19 +67,19 @@ class MyClient(discord.Client):
                         await cmd.Help(message, prefix, discord, command)
 
                     elif command.startswith(f"{prefix}xp"):
-                        await xp.xp_request(message, math, discord, random, userID)
+                        await xp.xp_request(message, math, discord, userID, cur)
 
                     elif command.startswith(f"{prefix}uxp"):
-                        await xp.user_xp_request(message, math, client, discord, random)
+                        await xp.user_xp_request(message, math, client, discord, cur)
 
                     elif command.startswith(f"{prefix}addxp"):
-                        await xp.add_xp(message, random, client, discord)
+                        await xp.add_xp(message, cur, con, math)
 
                     elif command.startswith(f"{prefix}removexp"):
-                        await xp.remove_xp(message, random, client, discord)
+                        await xp.remove_xp(message, cur, con, math)
 
                     elif command.startswith(f"{prefix}resetxp"):
-                        await xp.reset_xp(message, random, client, discord)
+                        await xp.reset_xp(message, cur, con)
 
                     elif command.startswith(f"{prefix}credits"):
                         await cmd.Credits(message)
