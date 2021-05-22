@@ -6,7 +6,7 @@ import time
 import requests
 import math
 import sqlite3
-from functions import Blacklist, status, cmd, OwnerCMD, React, xp
+from functions import Blacklist, status, cmd, OwnerCMD, React, xp, customCommands
 
 c = open("BotFiles/config.json")
 json_data = json.load(c)
@@ -26,6 +26,12 @@ con = sqlite3.connect("BotFiles/xp.sqlite")
 cur = con.cursor()
 
 cur.execute("CREATE TABLE IF NOT EXISTS users (id number PRIMARY KEY, username text, nickname text, color text, avatar text, experience number)")
+
+
+cc_con = sqlite3.connect("BotFiles/ccs.sqlite")
+cc_cur = cc_con.cursor()
+
+cc_cur.execute("CREATE TABLE IF NOT EXISTS customcommands (trigger text PRIMARY KEY, command text)")
 
 
 
@@ -58,6 +64,7 @@ class MyClient(discord.Client):
         if message.author != client.user:
             await React.ReacT(random, ChannelID, CommandChannelID, message)
             if message.content.startswith(prefix):
+                await customCommands.check_commands(command, cc_cur, prefix, message)
 
                 #not Chat Commands
                 if int(ChannelID) == int(CommandChannelID):
@@ -91,10 +98,15 @@ class MyClient(discord.Client):
                     if int(userID) == int(BotOwnerID):
 
 
-                        if message.content.startswith(f"{prefix}status"):
+                        if command.startswith(f"{prefix}status"):
                             Status = message.content
                             s = open("BotFiles/status", "w")
                             await status.status(Status, client, discord, s)
+
+
+
+                        elif command.startswith(f"{prefix}add "):
+                            await customCommands.add_command(message, cc_cur, cc_con, prefix)
 
 
 

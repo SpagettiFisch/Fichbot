@@ -60,11 +60,19 @@ async def xp_request(message, math, discord, userID, cur):
 
 
 async def user_xp_request(message, math, client, discord, cur):
-    userid = message.content.split(' ')[1]
-
-    user = await client.fetch_user(userid)
-
     try:
+        userid = int(message.content.split(' ')[1])
+        user = await client.fetch_user(userid)
+
+    except ValueError:
+        try:
+            userid = int(str(message.content.split(' ')[1]).removeprefix("<@!").removesuffix(">"))
+        
+        except:
+            await message.channel.send("ungültige Nutzer ID")
+            return 
+    
+    try:   
         userxp = cur.execute(f"SELECT experience FROM users WHERE id = {userid}")
         userxp = cur.fetchall()
         userxp = str(userxp).removesuffix(",)]").removeprefix("[(")
@@ -77,6 +85,10 @@ async def user_xp_request(message, math, client, discord, cur):
         nick = cur.execute(f"SELECT nickname FROM users WHERE id = {userid}")
         nick = cur.fetchall()
         nick = str(nick).removesuffix("',)]").removeprefix("[('")
+
+        user = cur.execute(f"SELECT username FROM users WHERE id = {userid}")
+        user = cur.fetchall()
+        user_name = str(user).removesuffix("',)]").removeprefix("[('")
 
     except:
         await message.channel.send("Benutzer nicht vorhanden")
@@ -112,8 +124,17 @@ async def add_xp(message, cur, con, math):
     cur = con.cursor()
 
     try:
-        userid = message.content.split(' ')[1]
+        userid = int(message.content.split(' ')[1])
+
+    except ValueError:
+        try:
+            userid = int(str(message.content.split(' ')[1]).removeprefix("<@!").removesuffix(">"))
         
+        except:
+            await message.channel.send("ungültige Nutzer ID")
+            return 
+    
+    try:   
         userxp = cur.execute(f"SELECT experience FROM users WHERE id = {userid}")
         userxp = cur.fetchall()
         userxp = str(userxp).removesuffix(",)]").removeprefix("[(")
@@ -131,7 +152,6 @@ async def add_xp(message, cur, con, math):
         user = cur.fetchall()
         user_name = str(user).removesuffix("',)]").removeprefix("[('")
 
-
     except:
         await message.channel.send("Benutzer nicht vorhanden")
         return
@@ -142,7 +162,10 @@ async def add_xp(message, cur, con, math):
     except:
         await message.channel.send("Fehlender Parameter: XP")
         return
-    userxp = float(userxp) + float(added)
+    try:
+        userxp = float(userxp) + float(added)
+    except:
+        await message.channel.send("Die XP müssen als Zahl angegeben werden.")
     
     cur.execute(f"UPDATE users SET experience = experience + {float(added)} WHERE id = {userid}")
     con.commit
@@ -167,8 +190,17 @@ async def add_xp(message, cur, con, math):
 
 async def remove_xp(message, cur, con, math):
     try:
-        userid = message.content.split(' ')[1]
+        userid = int(message.content.split(' ')[1])
+
+    except ValueError:
+        try:
+            userid = int(str(message.content.split(' ')[1]).removeprefix("<@!").removesuffix(">"))
         
+        except:
+            await message.channel.send("ungültige Nutzer ID")
+            return 
+    
+    try:   
         userxp = cur.execute(f"SELECT experience FROM users WHERE id = {userid}")
         userxp = cur.fetchall()
         userxp = str(userxp).removesuffix(",)]").removeprefix("[(")
@@ -186,7 +218,6 @@ async def remove_xp(message, cur, con, math):
         user = cur.fetchall()
         user_name = str(user).removesuffix("',)]").removeprefix("[('")
 
-
     except:
         await message.channel.send("Benutzer nicht vorhanden")
         return
@@ -198,7 +229,10 @@ async def remove_xp(message, cur, con, math):
         await message.channel.send("Fehlender Parameter: XP")
         return
 
-    userxp = float(userxp) - float(added)
+    try:
+        userxp = float(userxp) + float(added)
+    except:
+        await message.channel.send("Die XP müssen als Zahl angegeben werden.")
     
     cur.execute(f"UPDATE users SET experience = experience - {float(added)} WHERE id = {userid}")
     con.commit
@@ -223,8 +257,17 @@ async def remove_xp(message, cur, con, math):
 
 async def reset_xp(message, cur, con):
     try:
-        userid = message.content.split(' ')[1]
+        userid = int(message.content.split(' ')[1])
+
+    except ValueError:
+        try:
+            userid = int(str(message.content.split(' ')[1]).removeprefix("<@!").removesuffix(">"))
         
+        except:
+            await message.channel.send("ungültige Nutzer ID")
+            return 
+    
+    try:   
         userxp = cur.execute(f"SELECT experience FROM users WHERE id = {userid}")
         userxp = cur.fetchall()
         userxp = str(userxp).removesuffix(",)]").removeprefix("[(")
@@ -241,7 +284,6 @@ async def reset_xp(message, cur, con):
         user = cur.execute(f"SELECT username FROM users WHERE id = {userid}")
         user = cur.fetchall()
         user_name = str(user).removesuffix("',)]").removeprefix("[('")
-
 
     except:
         await message.channel.send("Benutzer nicht vorhanden")
