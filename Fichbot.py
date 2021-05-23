@@ -68,7 +68,8 @@ class MyClient(discord.Client):
 
                 #not Chat Commands
                 if int(ChannelID) == int(CommandChannelID):
-
+                    if command.startswith(f"{prefix}list"):
+                        await customCommands.list_commands(cc_cur, message, discord, prefix)
 
                     if command.startswith(f'{prefix}help'):
                         await cmd.Help(message, prefix, discord, command)
@@ -107,6 +108,11 @@ class MyClient(discord.Client):
 
                         elif command.startswith(f"{prefix}add "):
                             await customCommands.add_command(message, cc_cur, cc_con, prefix)
+
+
+
+                        elif command.startswith(f"{prefix}delete "):
+                            await customCommands.delete_command(cc_cur, cc_con, message, prefix, command, sqlite3)
 
 
 
