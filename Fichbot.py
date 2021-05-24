@@ -144,7 +144,7 @@ class MyClient(discord.Client):
 
 
                 elif command.startswith(f"{prefix}roulette "):
-                    await cmd.Roulette(random, message, userID, discord)
+                    await cmd.Roulette(random, message, userID, discord, cur, con, prefix)
 
 
 
