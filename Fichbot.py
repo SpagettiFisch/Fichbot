@@ -22,17 +22,12 @@ b = open("BotFiles/Blacklist", "r")
 blacklist = b.read()
 
 
-con = sqlite3.connect("BotFiles/xp.sqlite")
+con = sqlite3.connect("BotFiles/BotThings.sqlite")
 cur = con.cursor()
 
 cur.execute("CREATE TABLE IF NOT EXISTS users (id number PRIMARY KEY, username text, nickname text, color text, avatar text, experience number)")
-
-
-cc_con = sqlite3.connect("BotFiles/ccs.sqlite")
-cc_cur = cc_con.cursor()
-
-cc_cur.execute("CREATE TABLE IF NOT EXISTS customcommands (trigger text PRIMARY KEY, command text)")
-
+cur.execute("CREATE TABLE IF NOT EXISTS customcommands (trigger text PRIMARY KEY, command text)")
+cur.execute("CREATE TABLE IF NOT EXISTS zitate (zitat text PRIMARY KEY, person text, jahr number)")
 
 
 
@@ -47,6 +42,7 @@ class MyClient(discord.Client):
         Status = s.read()
         await status.status(Status, client, discord, s)
         s.close()
+        person = await client.fetch_user(802641583190573107)
 
     async def on_message(self, message):
         id = str(message).split(' ')[12]
@@ -64,33 +60,24 @@ class MyClient(discord.Client):
         if message.author != client.user:
             await React.ReacT(random, ChannelID, CommandChannelID, message)
             if message.content.startswith(prefix):
-                await customCommands.check_commands(command, cc_cur, prefix, message)
+                await customCommands.check_commands(command, cur, prefix, message)
 
                 #not Chat Commands
                 if int(ChannelID) == int(CommandChannelID):
                     if command.startswith(f"{prefix}list"):
-                        await customCommands.list_commands(cc_cur, message, discord, prefix)
+                        await customCommands.list_commands(cur, message, discord, prefix)
 
-                    if command.startswith(f'{prefix}help'):
+                    elif command.startswith(f'{prefix}help'):
                         await cmd.Help(message, prefix, discord, command)
 
                     elif command.startswith(f"{prefix}xp"):
                         await xp.xp_request(message, math, discord, userID, cur)
 
-                    elif command.startswith(f"{prefix}uxp"):
-                        await xp.user_xp_request(message, math, client, discord, cur)
-
-                    elif command.startswith(f"{prefix}addxp"):
-                        await xp.add_xp(message, cur, con, math)
-
-                    elif command.startswith(f"{prefix}removexp"):
-                        await xp.remove_xp(message, cur, con, math)
-
-                    elif command.startswith(f"{prefix}resetxp"):
-                        await xp.reset_xp(message, cur, con)
-
                     elif command.startswith(f"{prefix}credits"):
                         await cmd.Credits(message)
+
+                    elif command.startswith(f"{prefix}addzitat"):
+                        await cmd.Zitat(message, client, BotOwnerID, cur, con)
 
                     #Owner Commands
                 elif int(ChannelID) == int(830343228502048808) or str(message.channel) == "Direct Message with SpagettiFisch#7613":
@@ -107,12 +94,12 @@ class MyClient(discord.Client):
 
 
                         elif command.startswith(f"{prefix}add "):
-                            await customCommands.add_command(message, cc_cur, cc_con, prefix)
+                            await customCommands.add_command(message, cur, con, prefix)
 
 
 
                         elif command.startswith(f"{prefix}delete "):
-                            await customCommands.delete_command(cc_cur, cc_con, message, prefix, command, sqlite3)
+                            await customCommands.delete_command(cur, con, message, prefix, command, sqlite3)
 
 
 
@@ -132,6 +119,41 @@ class MyClient(discord.Client):
 
 
 
+                        elif command.startswith(f"{prefix}uxp"):
+                            await xp.user_xp_request(message, math, client, discord, cur)
+
+
+
+                        elif command.startswith(f"{prefix}addxp"):
+                            await xp.add_xp(message, cur, con, math)
+
+
+
+                        elif command.startswith(f"{prefix}removexp"):
+                            await xp.remove_xp(message, cur, con, math)
+
+
+
+                        elif command.startswith(f"{prefix}resetxp"):
+                            await xp.reset_xp(message, cur, con)
+
+
+
+                        elif command.startswith(f"{prefix}confirm"):
+                            await cmd.confirm_zitat(con, cur, message)
+
+
+
+                        elif command.startswith(f"{prefix}deletetemp"):
+                            await cmd.delete_zitat_temp(message)
+
+
+
+                        elif command.startswith(f"{prefix}delzitat"):
+                            await cmd.zitat_loeschen(message, cur, con)
+
+
+
                 #Chat Commands
                 elif command.startswith(f"{prefix}witz"):
                     await cmd.Witz(requests, message)
@@ -140,6 +162,11 @@ class MyClient(discord.Client):
 
                 elif command.startswith(f"{prefix}dice"):
                     await cmd.Dice(command, random, message)
+
+
+
+                elif command.startswith(f"{prefix}zitat"):
+                    await cmd.zitat_abfrage(message, cur, random)
 
 
 

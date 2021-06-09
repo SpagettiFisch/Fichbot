@@ -30,6 +30,11 @@ async def xp_request(message, math, discord, userID, cur):
         nick = cur.fetchall()
         nick = str(nick).removesuffix("',)]").removeprefix("[('")
 
+        avatar = cur.execute(f"SELECT avatar FROM users WHERE id = {userID}")
+        avatar = cur.fetchall()
+        avatar = avatar.pop()
+        avatar = str(avatar).removeprefix("('").removesuffix("',)")
+
     except:
         await message.channel.send("Benutzer nicht vorhanden")
         return
@@ -52,7 +57,8 @@ async def xp_request(message, math, discord, userID, cur):
         embed = discord.Embed(title=str(user_name),
                             color=farbe,
                             description=nick)
-
+    
+    embed.set_thumbnail(url=f"https://{avatar}")
     embed.add_field(name="XP",
                     value=roundedXP)
     await message.channel.send(embed=embed)
@@ -86,9 +92,13 @@ async def user_xp_request(message, math, client, discord, cur):
         nick = cur.fetchall()
         nick = str(nick).removesuffix("',)]").removeprefix("[('")
 
-        user = cur.execute(f"SELECT username FROM users WHERE id = {userid}")
-        user = cur.fetchall()
-        user_name = str(user).removesuffix("',)]").removeprefix("[('")
+        user = await client.fetch_user(userid)
+        user_name = str(user).split('#')[0]
+
+        avatar = cur.execute(f"SELECT avatar FROM users WHERE id = {userid}")
+        avatar = cur.fetchall()
+        avatar = avatar.pop()
+        avatar = str(avatar).removeprefix("('").removesuffix("',)")
 
     except:
         await message.channel.send("Benutzer nicht vorhanden")
@@ -114,6 +124,7 @@ async def user_xp_request(message, math, client, discord, cur):
                             color=farbe,
                             description=nick)
 
+    embed.set_thumbnail(url=f"https://{avatar}")
     embed.add_field(name="XP",
                     value=roundedXP)
     await message.channel.send(embed=embed)
@@ -152,6 +163,11 @@ async def add_xp(message, cur, con, math):
         user = cur.fetchall()
         user_name = str(user).removesuffix("',)]").removeprefix("[('")
 
+        avatar = cur.execute(f"SELECT avatar FROM users WHERE id = {userid}")
+        avatar = cur.fetchall()
+        avatar = avatar.pop()
+        avatar = str(avatar).removeprefix("('").removesuffix("',)")
+
     except:
         await message.channel.send("Benutzer nicht vorhanden")
         return
@@ -164,11 +180,18 @@ async def add_xp(message, cur, con, math):
         return
     try:
         userxp = float(userxp) + float(added)
+
     except:
         await message.channel.send("Die XP müssen als Zahl angegeben werden.")
     
-    cur.execute(f"UPDATE users SET experience = experience + {float(added)} WHERE id = {userid}")
-    con.commit
+    if float(userxp) < 0:
+        cur.execute(f"UPDATE users SET experience = 0 WHERE id = {userid}")
+        userxp = 0
+        
+    else:
+        cur.execute(f"UPDATE users SET experience = experience + {float(added)} WHERE id = {userid}")
+        con.commit
+        
 
     
 
@@ -182,6 +205,7 @@ async def add_xp(message, cur, con, math):
                             color=farbe,
                             description=nick)
 
+    embed.set_thumbnail(url=f"https://{avatar}")
     embed.add_field(name="XP",
                     value=roundedXP)
     await message.channel.send(embed=embed)
@@ -218,6 +242,11 @@ async def remove_xp(message, cur, con, math):
         user = cur.fetchall()
         user_name = str(user).removesuffix("',)]").removeprefix("[('")
 
+        avatar = cur.execute(f"SELECT avatar FROM users WHERE id = {userid}")
+        avatar = cur.fetchall()
+        avatar = avatar.pop()
+        avatar = str(avatar).removeprefix("('").removesuffix("',)")
+
     except:
         await message.channel.send("Benutzer nicht vorhanden")
         return
@@ -249,6 +278,7 @@ async def remove_xp(message, cur, con, math):
                             color=farbe,
                             description=nick)
 
+    embed.set_thumbnail(url=f"https://{avatar}")
     embed.add_field(name="XP",
                     value=roundedXP)
     await message.channel.send(embed=embed)
@@ -285,6 +315,11 @@ async def reset_xp(message, cur, con):
         user = cur.fetchall()
         user_name = str(user).removesuffix("',)]").removeprefix("[('")
 
+        avatar = cur.execute(f"SELECT avatar FROM users WHERE id = {userid}")
+        avatar = cur.fetchall()
+        avatar = avatar.pop()
+        avatar = str(avatar).removeprefix("('").removesuffix("',)")
+
     except:
         await message.channel.send("Benutzer nicht vorhanden")
         return
@@ -302,6 +337,7 @@ async def reset_xp(message, cur, con):
                             color=farbe,
                             description=nick)
 
+    embed.set_thumbnail(url=f"https://{avatar}")
     embed.add_field(name="XP",
                     value=0)
     await message.channel.send(embed=embed)

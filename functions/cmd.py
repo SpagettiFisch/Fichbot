@@ -128,6 +128,12 @@ async def Help(message, prefix, discord, command):
         embed.add_field(name=f"{prefix}roulette <BID> <Einsatz>",
                         value="_Startet das Roulette \nBID = black/red/beliebige Zahl \nEinsatz = beliebige Zahl, darf aber nicht höher sein, als deine XP, der Einsatz kann weggelassen werden_",
                         inline=False)
+        embed.add_field(name=f"{prefix}list",
+                        value="_Listet alle Custom Commands auf._",
+                        inline=False)
+        embed.add_field(name=f"{prefix}addzitat <Person> <Jahr> <Zitat>",
+                        value="_Erstellt eine Anfrage zum Hinzufügen eines neuen Zitates._",
+                        inline=False)
 
     elif command.startswith(f"{prefix}help links"):
         embed = discord.Embed(title="Link Help",
@@ -165,8 +171,90 @@ async def Help(message, prefix, discord, command):
     await message.channel.send(embed=embed)
 
 
-    #Links
 
+async def Zitat(message, client, owner, cur, con):
+    owner = await client.fetch_user(owner)
+    person = message.content.split()[1]
+    jahr = message.content.split()[2]
+    zitat = message.content.split(' ', 3)[3]
+    if owner != message.author:
+        z = open("BotFiles/zitattemp.txt", "a+")
+        z.write(f"{person} {jahr} {zitat} @{message.author}\n")
+        z.close()
+        await owner.send(f"{zitat} - {person} {jahr} @{message.author}")
+        await message.channel.send("Zitat Anfrage an meinen Meister geschickt")
+
+    else:
+        cur.execute(f"INSERT OR IGNORE INTO zitate VALUES ('{zitat}','{person}',{jahr})")
+        con.commit()
+        await message.channel.send("Zitat hinzugefügt")
+
+
+
+async def confirm_zitat(con, cur, message):
+    count = 0
+    z = open("BotFiles/zitattemp.txt", "r")
+    try:
+        number = int(message.content.split()[1])
+    except:
+        number = False
+
+    zitate = z.readlines()
+
+    for zz in zitate:
+        zz = zz.split('@')[0]
+        zz = zz.replace('\n', '')
+        count += 1
+        person = zz.split()[0].removesuffix(' ')
+        jahr = zz.split()[1].removesuffix(' ')
+        zitat = zz.split(' ', 2)[2].removesuffix(' ')
+        if count == number:
+            cur.execute(f"INSERT OR IGNORE INTO zitate VALUES ('{zitat}','{person}',{jahr})")
+            con.commit()
+        elif not number:
+            cur.execute(f"INSERT OR IGNORE INTO zitate VALUES ('{zitat}','{person}',{jahr})")
+            con.commit()
+    z.close()
+    await message.channel.send("Zitat(e) erfolgreich bestätigt.")
+
+
+
+async def delete_zitat_temp(message):
+    z = open("BotFiles/zitattemp.txt", "w+")
+    z.write('')
+    z.close()
+    await message.channel.send("Temporäre Zitate wurden gelöscht.")
+
+
+
+async def zitat_abfrage(message, cur, random):
+    zitate = cur.execute("SELECT * FROM zitate")
+    zitate = cur.fetchall()
+    anzahl = len(zitate)
+    random = random.randint(1, anzahl)
+    count = 0
+
+    for zz in zitate:
+        count += 1
+        zz = list(zz)
+        if count == random:
+            zitat = zz.pop(0)
+            person = zz.pop(0)
+            jahr = zz.pop(0)
+
+            await message.channel.send(f"> {zitat}\n~{person} {jahr}")
+
+
+
+async def zitat_loeschen(message, cur, con):
+    zitat = message.content.split(' ', 1)[1]
+    cur.execute(f"DELETE FROM zitate WHERE zitat = '{zitat}'")
+    con.commit()
+    await message.channel.send("Zitat gelöscht")
+
+
+
+    #Links
 async def Fichbot(message, time):
     await message.channel.send(
         "Das bin ich. Was gibt es? Um zu sehen, was ich alles tolles kann, schreib einfach !help")
