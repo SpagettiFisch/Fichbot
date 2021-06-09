@@ -6,7 +6,7 @@ import time
 import requests
 import math
 import sqlite3
-from functions import Blacklist, status, cmd, OwnerCMD, React, xp, customCommands
+from functions import Blacklist, status, cmd, OwnerCMD, React, xp, customCommands, log
 
 c = open("BotFiles/config.json")
 json_data = json.load(c)
@@ -225,8 +225,10 @@ class MyClient(discord.Client):
 
 
     async def on_message_edit(self, before, after):
+
         if Logs:
             if before.author != client.user:
+                await log.edit_log(client, before, after, discord)
                 Nachricht_alt = before.content
                 Nachricht_neu = after.content
                 try:
@@ -244,6 +246,9 @@ class MyClient(discord.Client):
                         f'\nFEHLER(BEARBEITET) "{Nachricht_neu}" von {before.author}')
                     l.close()
 
+    async def on_message_delete(self, message):
+        if Logs:
+            await log.delete_log(client, message, discord)
 
     #Verification
     async def on_raw_reaction_add(self, reaction):
