@@ -8,10 +8,10 @@ async def XP(message, userID, cur, con):
     XPs = Laenge
 
     try:
-        cur.execute(f"INSERT INTO users VALUES ({userID},'{str(message.author).split('#')[0]}','{message.author.nick}','{message.author.color}','{str(message.author.avatar_url).removeprefix('https://').removesuffix('?size=1024')}','{XPs}')")
+        cur.execute(f"INSERT INTO users VALUES ({userID},'{str(message.author).split('#')[0].replace('(', ')').replace(')', '(')}','{str(message.author.nick).replace('(', ')').replace(')', '(')}','{message.author.color}','{str(message.author.avatar_url).removeprefix('https://').removesuffix('?size=1024')}','{XPs}')")
         con.commit()
     except:
-        cur.execute(f"UPDATE users SET experience = experience + {XPs}, color = '{message.author.color}', nickname = '{message.author.nick}', avatar = '{str(message.author.avatar_url).removeprefix('https://').removesuffix('?size=1024')}', username = '{str(message.author).split('#')[0]}' WHERE id = {userID}")
+        cur.execute(f"UPDATE users SET experience = experience + {XPs}, color = '{message.author.color}', nickname = '{str(message.author.nick).replace('(', ')').replace(')', '(')}', avatar = '{str(message.author.avatar_url).removeprefix('https://').removesuffix('?size=1024')}', username = '{str(message.author).split('#')[0].replace('(', ')').replace(')', '(')}' WHERE id = {userID}")
         con.commit()
 
 
