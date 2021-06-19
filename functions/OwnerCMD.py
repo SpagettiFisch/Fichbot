@@ -3,7 +3,7 @@ async def Stop(sys, client, message):
     print("Ich geh dann mal offline")
     client.clear()
     await client.close()
-    await sys.exit()
+    await sys.exit(1)
 
 async def DM(client, command, message):
     Person = await client.fetch_user(command.split('+')[1])

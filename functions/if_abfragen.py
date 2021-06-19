@@ -6,6 +6,7 @@ import time
 import requests
 import math
 import sqlite3
+import re
 from functions import Blacklist, status, cmd, OwnerCMD, React, xp, customCommands, log
 
 c = open("BotFiles/config.json")
@@ -39,7 +40,6 @@ async def if_ready(client):
 
 
 async def if_message(message, client):
-
     id = str(message).split(' ')[12]
     userID = id.split('=')[1]
     cid = str(message).split(' ')[3]
@@ -73,6 +73,9 @@ async def if_message(message, client):
 
                 elif command.startswith(f"{prefix}addzitat"):
                     await cmd.Zitat(message, client, BotOwnerID, cur, con)
+
+                elif command.startswith(f"{prefix}translate"):
+                    await cmd.translator(message, command, re)
 
                 #Owner Commands
             elif int(ChannelID) == int(830343228502048808) or str(message.channel) == "Direct Message with SpagettiFisch#7613":

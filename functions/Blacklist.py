@@ -1,6 +1,6 @@
 async def Blacklist(message, userID, command, blacklist):
     count = 0
-    Inhalt = command.replace('.', '').replace(' ', '').replace('-', '').replace('_', '')
+    Inhalt = command.replace('.', '').replace(' ', '').replace('-', '').replace('_', '').replace('\n', '').replace(',', '')
     checking = True 
     while True:
         if checking == True:
