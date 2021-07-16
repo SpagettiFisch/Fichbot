@@ -3,6 +3,7 @@ from functions import if_abfragen
 c = open("BotFiles/config.json")
 json_data = json.load(c)
 token = json_data["token"]
+intents = discord.Intents.all()
 
 class MyClient(discord.Client):
 
@@ -17,6 +18,9 @@ class MyClient(discord.Client):
 
     async def on_message_delete(self, message):
         await if_abfragen.if_delete(message, client)
+  
+    async def on_member_update(self, before, after):
+        await if_abfragen.if_member_update(before, after, client)
 
-client = MyClient()
+client = MyClient(intents=intents)
 client.run(token)

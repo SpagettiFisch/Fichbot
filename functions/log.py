@@ -37,3 +37,23 @@ async def delete_log(client, message, discord):
                     inline=False)
 
     await mod_channel.send(embed=embed)
+
+async def name_log(client, name, name_after, name_before, art, discord):
+    mod_channel = await client.fetch_channel(836542316273467403)
+    user = name
+    avatar = user.avatar_url
+
+
+    embed = discord.Embed(title=f"{user}",
+                        description=art,
+                        color=0xc41616)
+    embed.set_thumbnail(url=f"{avatar}")
+
+    embed.add_field(name="Vorher",
+                    value=name_before,
+                    inline=False)
+
+    embed.add_field(name="Nachher",
+                    value=name_after)
+
+    await mod_channel.send(embed=embed)

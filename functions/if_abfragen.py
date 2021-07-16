@@ -77,6 +77,12 @@ async def if_message(message, client):
                 elif command.startswith(f"{prefix}translate"):
                     await cmd.translator(message, command, re)
 
+                elif command.startswith(f"{prefix}wiggle"):
+                    await cmd.wiggle(message)
+                    
+                elif command.startswith(f"{prefix}level"):
+                    await xp.check_level(math, userID, cur, discord, message)
+
                 #Owner Commands
             elif int(ChannelID) == int(830343228502048808) or str(message.channel) == "Direct Message with SpagettiFisch#7613":
 
@@ -248,3 +254,27 @@ async def if_edit(before, after, client):
 async def if_delete(message, client):
     if Logs:
             await log.delete_log(client, message, discord)
+
+
+
+async def if_member_update(before, after, client):
+    mod_channel = await client.fetch_channel(836542316273467403)
+    if int(before.id) == 542693392245719050 and str(before.status) != str(after.status) and str(after.status) == "online":
+        if str(before.status) == "idle":
+            await mod_channel.send("<@477352031561187328> Cykloni ist zurück!")
+            #await after.send("wb")
+        elif str(before.status) == "dnd":
+            pass
+            #await after.send("Nicht mehr rot uwu")
+        else: 
+            await mod_channel.send("<@477352031561187328> Cyklon ist daaaaa!")
+            #await after.send("Heyuuuuuuuuuu Großer!\nGrüße von deinem kleinen Fischi!")
+
+    elif str(before.nick) != str(after.nick):
+        if "database" in str(after.nick).lower() or "drop" in str(after.nick).lower():
+            await log.name_log(client, after, after.nick, before.nick, "Nickname", discord)
+
+        elif "database" in str(after).lower() or "drop" in str(after).lower():
+            await log.name_log(client, after, after, before, "Username", discord)
+
+
