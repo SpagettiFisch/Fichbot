@@ -6,7 +6,7 @@ json_data = json.load(c)
 token = json_data["token"]
 intents = discord.Intents.all()
 client = discord.Client()
-bot = commands.Bot(command_prefix='!')
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 @bot.event
 async def on_ready():
