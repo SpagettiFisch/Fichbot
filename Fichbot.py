@@ -1,26 +1,41 @@
 import discord, json
-from functions import if_abfragen
+from discord.ext import commands
+from functions import command_selection as selection
 c = open("BotFiles/config.json")
 json_data = json.load(c)
 token = json_data["token"]
 intents = discord.Intents.all()
+client = discord.Client()
+bot = commands.Bot(command_prefix='!', intents=intents)
 
-class MyClient(discord.Client):
+@bot.event
+async def on_ready():
+    await selection.if_ready(bot)
 
-    async def on_ready(self):
-        await if_abfragen.if_ready(client)
+@bot.event
+async def on_message(message):
+    await selection.if_message(message, bot)
 
-    async def on_message(self, message):
-        await if_abfragen.if_message(message, client)
+@bot.event
+async def on_message_edit(before, after):
+    await selection.if_edit(before, after, bot)
 
-    async def on_message_edit(self, before, after):
-        await if_abfragen.if_edit(before, after, client)
+@bot.event
+async def on_message_delete(message):
+    await selection.if_delete(message, bot)
 
-    async def on_message_delete(self, message):
-        await if_abfragen.if_delete(message, client)
-  
-    async def on_member_update(self, before, after):
-        await if_abfragen.if_member_update(before, after, client)
+@bot.event
+async def on_member_update(before, after):
+    await selection.if_member_update(before, after, bot)
 
-client = MyClient(intents=intents)
-client.run(token)
+@bot.command()
+async def test(ctx):
+    await ctx.send('!test')
+
+@bot.command(hidden=True)
+async def clear(ctx, number):
+    messages = await ctx.channel.history(limit=int(number)).flatten()
+    for message in messages:
+        await message.delete()
+
+bot.run(token)

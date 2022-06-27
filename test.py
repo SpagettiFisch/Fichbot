@@ -1,6 +1,6 @@
 import discord, json, time
 from discord.ext import commands
-from functions import if_abfragen
+from functions import command_selection
 c = open("BotFiles/config.json")
 json_data = json.load(c)
 token = json_data["token"]

@@ -28,35 +28,54 @@ cur.execute("CREATE TABLE IF NOT EXISTS customcommands (trigger text PRIMARY KEY
 cur.execute("CREATE TABLE IF NOT EXISTS zitate (zitat text PRIMARY KEY, person text, jahr number)")
 
 
-async def if_ready(client):
-    print("Ich habe mich eingeloggt.")
+async def if_ready(bot):
+    print(f'{bot.user} has connected to Discord!')
 
     s = open("BotFiles/status", "r")
     Status = s.read()
-    await status.status(Status, client, discord, s)
+    await status.status(Status, bot, discord, s)
     s.close()
-    person = await client.fetch_user(734868946825510933)
+    person = await bot.fetch_user(734868946825510933)
 
 
 
-async def if_message(message, client):
+async def if_message(message, bot):
+    #generell message infos
     id = str(message).split(' ')[12]
     userID = id.split('=')[1]
     cid = str(message).split(' ')[3]
     ChannelID = cid.split('=')[1]
     command = message.content.lower()
+    #blacklsit, xp and random reactions
     if bl:
         await Blacklist.Blacklist(message, userID, command, blacklist)
     if not "direct message with" in str(message.channel).lower():
         await xp.XP(message, userID, cur, con)
-
-
-
-    if message.author != client.user:
+    elif message.author != bot.user:
         await React.ReacT(random, ChannelID, CommandChannelID, message)
-        if message.content.startswith(prefix):
-            await customCommands.check_commands(command, cur, prefix, message)
+    
+    #Logging
+    if Logs:
+        Nachricht = message.content
+        Autor = message.author
+        Channel = message.channel
+        tempus = str(message.created_at).split(".")
+        Guild = message.guild
+        tempus.pop()
+        try:
+            Datum = str(tempus).split(" ")[0].replace("['", "")
+            Zeit = str(tempus).split(" ")[1].replace("']", "")
+            l = open("BotFiles/logs.txt", "a")
+            l.writelines(f'\n{Autor} hat in {Channel}, auf dem Server {Guild} am {Datum} um {Zeit} "{Nachricht}" geschrieben.')
+            l.close()
+        except:
+            l = open("BotFiles/logs.txt", "a")
+            l.writelines(f'\nFEHLER "{Nachricht}" von {Autor}')
+            l.close()
 
+#        if message.content.startswith(prefix):
+#            await customCommands.check_commands(command, cur, prefix, message)
+"""
             #not Chat Commands
             if int(ChannelID) == int(CommandChannelID):
                 if command.startswith(f"{prefix}list"):
@@ -72,7 +91,7 @@ async def if_message(message, client):
                     await cmd.Credits(message)
 
                 elif command.startswith(f"{prefix}addzitat"):
-                    await cmd.Zitat(message, client, BotOwnerID, cur, con)
+                    await cmd.Zitat(message, bot, BotOwnerID, cur, con)
 
                 elif command.startswith(f"{prefix}translate"):
                     await cmd.translator(message, command, re)
@@ -93,7 +112,7 @@ async def if_message(message, client):
                     if command.startswith(f"{prefix}status"):
                         Status = message.content
                         s = open("BotFiles/status", "w")
-                        await status.status(Status, client, discord, s)
+                        await status.status(Status, bot, discord, s)
 
 
 
@@ -109,22 +128,22 @@ async def if_message(message, client):
 
                     elif command.startswith(f"{prefix}stop"):
                         if int(userID) == int(BotOwnerID):
-                            await OwnerCMD.Stop(sys, client, message)
+                            await OwnerCMD.Stop(sys, bot, message)
 
 
 
                     elif command.startswith(f"{prefix}dm"):
-                        await OwnerCMD.DM(client, command, message)
+                        await OwnerCMD.DM(bot, command, message)
 
 
 
                     elif command.startswith(f"{prefix}ki"):
-                        await OwnerCMD.KI(command, message, client)
+                        await OwnerCMD.KI(command, message, bot)
 
 
 
                     elif command.startswith(f"{prefix}uxp"):
-                        await xp.user_xp_request(message, math, client, discord, cur)
+                        await xp.user_xp_request(message, math, bot, discord, cur)
 
 
 
@@ -201,47 +220,26 @@ async def if_message(message, client):
 
             elif command.startswith(f"{prefix}slumpfus"):
                 await cmd.Slumpfus(message)
+"""
 
 
 
 
 
-
-    #Logging
-        if Logs:
-            Nachricht = message.content
-            Autor = message.author
-            Channel = message.channel
-            tempus = str(message.created_at).split(".")
-            Guild = message.guild
-            tempus.pop()
-            try:
-                Datum = str(tempus).split(" ")[0].replace("['", "")
-                Zeit = str(tempus).split(" ")[1].replace("']", "")
-                l = open("BotFiles/logs.txt", "a")
-                l.writelines(f'\n{Autor} hat in {Channel}, auf dem Server {Guild} am {Datum} um {Zeit} "{Nachricht}" geschrieben.')
-                l.close()
-            except:
-                l = open("BotFiles/logs.txt", "a")
-                l.writelines(f'\nFEHLER "{Nachricht}" von {Autor}')
-                l.close()
-
-
-
-async def if_edit(before, after, client):
+async def if_edit(before, after, bot):
     if Logs:
-            if before.author != client.user:
-                await log.edit_log(client, before, after, discord)
+            if before.author != bot.user:
+                await log.edit_log(bot, before, after, discord)
                 Nachricht_alt = before.content
                 Nachricht_neu = after.content
                 try:
 
                     tempus = str(after.edited_at).split('.')
                     tempus.pop()
-                    Datum = str(tempus).split(" ")[0].replace("['", "")
-                    Zeit = str(tempus).split(" ")[1].replace("']", "")
+                    date = str(tempus).split(" ")[0].replace("['", "")
+                    time = str(tempus).split(" ")[1].replace("']", "")
                     l = open('BotFiles/logs.txt', 'a')
-                    l.writelines(f'\n{before.author} hat in {after.channel} auf {after.guild} am {Datum} um {Zeit} von "{Nachricht_alt}" zu "{Nachricht_neu}" bearbeitet.')
+                    l.writelines(f'\n{before.author} hat in {after.channel} auf {after.guild} am {date} um {time} von "{Nachricht_alt}" zu "{Nachricht_neu}" bearbeitet.')
                     l.close()
                 except:
                     l = open("BotFiles/logs.txt", "a")
@@ -251,14 +249,14 @@ async def if_edit(before, after, client):
 
 
 
-async def if_delete(message, client):
+async def if_delete(message, bot):
     if Logs:
-            await log.delete_log(client, message, discord)
+            await log.delete_log(bot, message, discord)
 
 
 
-async def if_member_update(before, after, client):
-    mod_channel = await client.fetch_channel(836542316273467403)
+async def if_member_update(before, after, bot):
+    mod_channel = await bot.fetch_channel(836542316273467403)
     if int(before.id) == 542693392245719050 and str(before.status) != str(after.status) and str(after.status) == "online":
         if str(before.status) == "idle":
             await mod_channel.send("<@477352031561187328> Cykloni ist zurück!")
@@ -272,9 +270,9 @@ async def if_member_update(before, after, client):
 
     elif str(before.nick) != str(after.nick):
         if "database" in str(after.nick).lower() or "drop" in str(after.nick).lower():
-            await log.name_log(client, after, after.nick, before.nick, "Nickname", discord)
+            await log.name_log(bot, after, after.nick, before.nick, "Nickname", discord)
 
         elif "database" in str(after).lower() or "drop" in str(after).lower():
-            await log.name_log(client, after, after, before, "Username", discord)
+            await log.name_log(bot, after, after, before, "Username", discord)
 
 
