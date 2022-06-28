@@ -1,17 +1,12 @@
 import discord
 import random
 import json
-import sys
-import time
-import requests
-import math
 import sqlite3
-import re
-from functions import Blacklist, status, cmd, OwnerCMD, React, xp, customCommands, log
+from functions import Blacklist, Commands, status, React, xp, customCommands, log
 
 c = open("BotFiles/config.json")
 json_data = json.load(c)
-prefix = json_data["prefix"] #Preifx for Bot Commands
+prefix = json_data["prefix"] #Prefix for Bot Commands
 Logs = json_data["Logs"] #should Logging be enabled
 BotOwnerID = json_data["Bot_Owner_ID"] #ID of the person who can use all Bot Commands
 CommandChannelID = json_data["Command_Channel_ID"] #the Channel ID for the most Bot Commands
@@ -28,7 +23,7 @@ cur.execute("CREATE TABLE IF NOT EXISTS customcommands (trigger text PRIMARY KEY
 cur.execute("CREATE TABLE IF NOT EXISTS zitate (zitat text PRIMARY KEY, person text, jahr number)")
 
 
-async def if_ready(bot):
+async def if_ready(bot, commands):
     print(f'{bot.user} has connected to Discord!')
 
     s = open("BotFiles/status", "r")
@@ -36,6 +31,7 @@ async def if_ready(bot):
     await status.Status(Status, bot, discord, s)
     s.close()
     person = await bot.fetch_user(734868946825510933)
+    await Commands.OwnerCommands(bot, commands)
 
 
 
@@ -56,21 +52,16 @@ async def if_message(message, bot):
     
     #Logging
     if Logs:
-        Nachricht = message.content
-        Autor = message.author
-        Channel = message.channel
-        tempus = str(message.created_at).split(".")
-        Guild = message.guild
-        tempus.pop()
+        str(message.created_at).split(".").pop()
         try:
-            Datum = str(tempus).split(" ")[0].replace("['", "")
-            Zeit = str(tempus).split(" ")[1].replace("']", "")
+            date = str(str(message.created_at).split(".")).split(" ")[0].replace("['", "")
+            time = str(str(message.created_at).split(".")).split(" ")[1].replace("']", "")
             l = open("BotFiles/logs.txt", "a")
-            l.writelines(f'\n{Autor} hat in {Channel}, auf dem Server {Guild} am {Datum} um {Zeit} "{Nachricht}" geschrieben.')
+            l.writelines(f'\n{message.author} hat in {message.channel}, auf dem Server {message.guild} am {date} um {time} "{message.content}" geschrieben.')
             l.close()
         except:
             l = open("BotFiles/logs.txt", "a")
-            l.writelines(f'\nFEHLER "{Nachricht}" von {Autor}')
+            l.writelines(f'\nFEHLER "{message.content}" von {message.author}')
             l.close()
 
 #        if message.content.startswith(prefix):
@@ -230,21 +221,17 @@ async def if_edit(before, after, bot):
     if Logs:
             if before.author != bot.user:
                 await log.edit_log(bot, before, after, discord)
-                Nachricht_alt = before.content
-                Nachricht_neu = after.content
                 try:
-
-                    tempus = str(after.edited_at).split('.')
-                    tempus.pop()
-                    date = str(tempus).split(" ")[0].replace("['", "")
-                    time = str(tempus).split(" ")[1].replace("']", "")
+                    str(after.edited_at).split('.').pop()
+                    date = str(str(after.edited_at).split('.')).split(" ")[0].replace("['", "")
+                    time = str(str(after.edited_at).split('.')).split(" ")[1].replace("']", "")
                     l = open('BotFiles/logs.txt', 'a')
-                    l.writelines(f'\n{before.author} hat in {after.channel} auf {after.guild} am {date} um {time} von "{Nachricht_alt}" zu "{Nachricht_neu}" bearbeitet.')
+                    l.writelines(f'\n{before.author} hat in {after.channel} auf {after.guild} am {date} um {time} von "{before.content}" zu "{after.content}" bearbeitet.')
                     l.close()
                 except:
                     l = open("BotFiles/logs.txt", "a")
                     l.writelines(
-                        f'\nFEHLER(BEARBEITET) "{Nachricht_neu}" von {before.author}')
+                        f'\nFEHLER(BEARBEITET) "{after.content}" von {before.author}')
                     l.close()
 
 

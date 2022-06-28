@@ -10,12 +10,12 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 
 @bot.event
 async def on_ready():
-    await selection.if_ready(bot)
-
+    await selection.if_ready(bot, commands)
+"""
 @bot.event
 async def on_message(message):
     await selection.if_message(message, bot)
-
+"""
 @bot.event
 async def on_message_edit(before, after):
     await selection.if_edit(before, after, bot)
@@ -31,11 +31,5 @@ async def on_member_update(before, after):
 @bot.command()
 async def test(ctx):
     await ctx.send('!test')
-
-@bot.command(hidden=True)
-async def clear(ctx, number):
-    messages = await ctx.channel.history(limit=int(number)).flatten()
-    for message in messages:
-        await message.delete()
 
 bot.run(token)

@@ -1,3 +1,5 @@
+import requests, time, random, sys, re, math
+
 async def Witz(requests, message):
     witz = requests.get("https://v2.jokeapi.dev/joke/Any?lang=de&format=txt&type=twopart")
     witz = witz.text
@@ -325,3 +327,40 @@ async def Slumpfus(message):
     await message.channel.send(
         "Geht mal zum lieben Slumpfus rüber, lasst einen Follow und Liebe da, dann kann der Fisch endlich seine Bits loswerden^^ "
         "https://www.twitch.tv/slumpfus")
+
+
+async def OwnerCommands(bot, commands):
+    @bot.command(hidden = True)
+    @commands.has_role("Fisch")
+    async def stop(ctx):
+        await ctx.channel.send("Ja wie denn? xD \nIch könnte das ja mal probie... ")
+        print("Ich geh dann mal offline")
+        bot.clear()
+        await bot.close()
+        await sys.exit(1)
+
+    @bot.command(hidden=True)
+    @commands.has_role("Fisch")
+    async def clear(ctx, number):
+        messages = await ctx.channel.history(limit=int(number)).flatten()
+        for message in messages:
+            await message.delete()
+
+    @bot.command(hidden = True, aliases = ["dm"])
+    @commands.has_role("Fisch")
+    async def DirectMessage(ctx, user, message):
+        #Person = await bot.fetch_user(ctx.split('+')[1])
+        #Nachricht = ctx.content.split('+')[2]
+        await user.send(message)
+        await ctx.channel.send("gesendet^^")
+        if not "Direct Message with" in str(ctx.channel):
+            await ctx.delete()
+
+    @bot.command(hidden = True, aliases = ["ai", "ki"])
+    @commands.has_role("Fisch")
+    async def ArtifactialIntelligence(ctx, channelid, message):
+        channel = await bot.fetch_channel(channelid)
+        await channel.send(message)
+        await ctx.channel.send("gesendet^^")
+        if not "Direct Message with" in str(ctx.channel): 
+            await ctx.delete()
