@@ -6,7 +6,6 @@ async def edit_log(client, before, after, discord):
     user = await client.fetch_user(userid)
     avatar = user.avatar_url
 
-
     embed = discord.Embed(title=f"{user}",
                         color=0xc41616)
     embed.set_thumbnail(url=f"{avatar}")
@@ -27,7 +26,6 @@ async def delete_log(client, message, discord):
     user = message.author
     avatar = user.avatar_url
 
-
     embed = discord.Embed(title=f"{user}",
                         color=0xc41616)
     embed.set_thumbnail(url=f"{avatar}")
@@ -38,11 +36,11 @@ async def delete_log(client, message, discord):
 
     await mod_channel.send(embed=embed)
 
+
 async def name_log(client, name, name_after, name_before, art, discord):
     mod_channel = await client.fetch_channel(836542316273467403)
     user = name
     avatar = user.avatar_url
-
 
     embed = discord.Embed(title=f"{user}",
                         description=art,

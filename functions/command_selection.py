@@ -33,7 +33,7 @@ async def if_ready(bot):
 
     s = open("BotFiles/status", "r")
     Status = s.read()
-    await status.status(Status, bot, discord, s)
+    await status.Status(Status, bot, discord, s)
     s.close()
     person = await bot.fetch_user(734868946825510933)
 
@@ -52,7 +52,7 @@ async def if_message(message, bot):
     if not "direct message with" in str(message.channel).lower():
         await xp.XP(message, userID, cur, con)
     elif message.author != bot.user:
-        await React.ReacT(random, ChannelID, CommandChannelID, message)
+        await React.react(random, ChannelID, CommandChannelID, message)
     
     #Logging
     if Logs:
