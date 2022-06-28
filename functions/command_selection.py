@@ -31,8 +31,11 @@ async def if_ready(bot, commands):
     await status.Status(Status, bot, discord, s)
     s.close()
     person = await bot.fetch_user(734868946825510933)
+    bot.remove_command("help")
     await Commands.OwnerCommands(bot, commands)
-
+    await Commands.ChatCommands(bot, prefix, cur, con)
+    await Commands.LinkCommands(bot)
+    bot.remove_command
 
 
 async def if_message(message, bot):
