@@ -2,7 +2,7 @@ import discord
 import random
 import json
 import sqlite3
-from functions import Blacklist, Commands, status, React, xp, customCommands, log
+from functions import Blacklist, Commands, custom, status as Status, React, xp, log
 
 c = open("BotFiles/config.json")
 json_data = json.load(c)
@@ -21,21 +21,21 @@ cur = con.cursor()
 cur.execute("CREATE TABLE IF NOT EXISTS users (id number PRIMARY KEY, username text, nickname text, color text, avatar text, experience number)")
 cur.execute("CREATE TABLE IF NOT EXISTS customcommands (trigger text PRIMARY KEY, command text)")
 cur.execute("CREATE TABLE IF NOT EXISTS zitate (zitat text PRIMARY KEY, person text, jahr number)")
+cur.execute("CREATE TABLE IF NOT EXISTS reactionRoles (name text PRIMARY KEY, channel_id number, message_id number, info text, emoji text, role_id number)")
 
 
 async def if_ready(bot, commands):
     print(f'{bot.user} has connected to Discord!')
 
-    s = open("BotFiles/status", "r")
-    Status = s.read()
-    await status.Status(Status, bot, discord, s)
-    s.close()
-    person = await bot.fetch_user(734868946825510933)
+    with open("BotFiles/status", "r") as status_file:
+        status = status_file.read()
+        await Status.Status(status, bot, discord, status_file)
+    #person = await bot.fetch_user(734868946825510933)
     bot.remove_command("help")
     await Commands.OwnerCommands(bot, commands)
-    await Commands.ChatCommands(bot, prefix, cur, con)
-    await Commands.LinkCommands(bot)
-    bot.remove_command
+    #await Commands.ChatCommands(bot, prefix, cur, con)
+    #await Commands.LinkCommands(bot)
+    #await custom.reactionEvent(con, cur, bot)
 
 
 async def if_message(message, bot):
@@ -266,3 +266,6 @@ async def if_member_update(before, after, bot):
             await log.name_log(bot, after, after, before, "Username", discord)
 
 
+
+async def if_reaction_add(bot):
+    pass
