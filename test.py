@@ -3,6 +3,11 @@ c = open("BotFiles/config.json")
 json_data = json.load(c)
 token = json_data["token"]
 intents = discord.Intents.all()
+<<<<<<< Updated upstream
+=======
+#client = discord.Client()
+bot = commands.Bot(command_prefix='!', intents=intents)
+>>>>>>> Stashed changes
 
 from discord.ext import slash
 client = slash.SlashBot(

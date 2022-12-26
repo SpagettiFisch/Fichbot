@@ -1,40 +1,26 @@
 import discord, json
-from discord.ext import slash
-commands = slash
-from functions import command_selection as selection
+from functions import if_abfragen
 c = open("BotFiles/config.json")
 json_data = json.load(c)
 token = json_data["token"]
 intents = discord.Intents.all()
-client = discord.Client()
-bot = slash.SlashBot(command_prefix='!', intents=intents)
 
-@bot.event
-async def on_ready():
-    await selection.if_ready(bot, slash)
-"""
-@bot.event
-async def on_message(message):
-    await selection.if_message(message, bot)
-"""
-@bot.event
-async def on_message_edit(before, after):
-    await selection.if_edit(before, after, bot)
+class MyClient(discord.Client):
 
-@bot.event
-async def on_message_delete(message):
-    await selection.if_delete(message, bot)
+    async def on_ready(self):
+        await if_abfragen.if_ready(client)
 
-@bot.event
-async def on_member_update(before, after):
-    await selection.if_member_update(before, after, bot)
+    #async def on_message(self, message):
+        #await if_abfragen.if_message(message, client)
 
-@bot.event
-async def on_raw_reaction_add():
-    await selection.if_reaction_add(bot)
+    async def on_message_edit(self, before, after):
+        await if_abfragen.if_edit(before, after, client)
 
-@bot.event
-async def on_interaction(interaction):
-    interaction.reponse("test")
+    async def on_message_delete(self, message):
+        await if_abfragen.if_delete(message, client)
 
-bot.run(token)
+    async def on_member_update(self, before, after):
+        await if_abfragen.if_member_update(before, after, client)
+
+client = MyClient(intents=intents)
+client.run(token)
