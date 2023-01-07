@@ -13,8 +13,8 @@ CommandChannelID = json_data["Command_Channel_ID"] #the Channel ID for the most 
 VerifyMessageID = json_data["Verify_Message_ID"] #the message ID used for reaction verification
 VerifyChannelID = json_data["Verify_Channel_ID"] # the Channel ID used for reaction verification
 bl = json_data["Blacklist"]
-b = open("BotFiles/Blacklist", "r")
-blacklist = b.read()
+#b = open("BotFiles/Blacklist", "r")
+#blacklist = b.read()
 
 con = sqlite3.connect("BotFiles/BotThings.sqlite")
 cur = con.cursor()
