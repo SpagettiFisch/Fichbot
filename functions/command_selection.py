@@ -24,18 +24,21 @@ cur.execute("CREATE TABLE IF NOT EXISTS zitate (zitat text PRIMARY KEY, person t
 cur.execute("CREATE TABLE IF NOT EXISTS reactionRoles (name text PRIMARY KEY, channel_id number, message_id number, info text, emoji text, role_id number)")
 
 
-async def if_ready(bot, commands):
-    print(f'{bot.user} has connected to Discord!')
-
+async def if_ready(bot, commands, slash):
     with open("BotFiles/status", "r") as status_file:
         status = status_file.read()
         await Status.Status(status, bot, discord, status_file)
+    print('Status set')
     #person = await bot.fetch_user(734868946825510933)
     bot.remove_command("help")
-    await Commands.OwnerCommands(bot, commands)
-    #await Commands.ChatCommands(bot, prefix, cur, con)
-    #await Commands.LinkCommands(bot)
-    #await custom.reactionEvent(con, cur, bot)
+    await Commands.OwnerCommands(bot, commands, slash)
+    print('Loaded restricted commands')
+    await Commands.ChatCommands(bot, prefix, cur, con, slash)
+    print('Loaded commands')
+    await Commands.LinkCommands(bot, slash)
+    print('Loaded links')
+    await custom.reactionEvent(con, cur, bot, slash)
+    print(f'{bot.user} has connected to Discord!')
 
 
 async def if_message(message, bot):

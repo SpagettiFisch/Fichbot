@@ -1,8 +1,9 @@
 import requests, time, random, sys, re, math, discord
 
-async def ChatCommands(bot, prefix, cur, con):
+async def ChatCommands(bot, prefix, cur, con, slash):
     @bot.slash_cmd()
-    async def witz(ctx):
+    async def witz(ctx: slash.Context):
+        "Sends a very bad joke. Please take them with humor"
         witz = requests.get("https://v2.jokeapi.dev/joke/Any?lang=de&format=txt&type=twopart")
         witz = witz.text
         witz = witz.splitlines()
@@ -11,7 +12,8 @@ async def ChatCommands(bot, prefix, cur, con):
         await ctx.respond(witz.replace("', '", "").replace(".", ". ").replace("?", "? ").replace("!", "! "))
 
     @bot.slash_cmd()
-    async def dice(ctx, start = None, end = None):
+    async def dice(ctx: slash.Context, start = 1, end = 6):
+        "Gives out a random number in range of the given ones"
         try:
             number = random.randint(int(start), int(end))
         except:
@@ -20,7 +22,8 @@ async def ChatCommands(bot, prefix, cur, con):
         await ctx.respond(f"Du hast eine {number} gewürfelt")
 
     @bot.slash_cmd(enabled = False)
-    async def roulette(ctx, bid, cash = 0):
+    async def roulette(ctx: slash.Context, bid, cash = 0):
+        "EVer wanted to play roulette?"
         uxp = cur.execute(f"SELECT experience FROM users WHERE id = {userID}")
         uxp = cur.fetchall()
         uxp = uxp[0]
@@ -99,11 +102,13 @@ async def ChatCommands(bot, prefix, cur, con):
         await ctx.respond(embed=embed)
 
     @bot.slash_cmd(hidden = True)
-    async def credits(ctx):
+    async def credits(ctx: slash.Context):
+        "Just gives credits to my huggabable creator"
         await ctx.author.send("`Dieser Bot wurde von SpagettiFisch programmiert`")
 
     @bot.slash_cmd(aliases = ["help cmd", "help cmds", "help command", "help commands"])
-    async def helpcommands(ctx):
+    async def helpcommands(ctx: slash.Context):
+        "SHows help for all commands"
         embed = discord.Embed(title="Command Help",
                             colour=discord.Colour(0x9324b5),
                             description="Hier seht ihr alle Commands für Normalfischliche:")
@@ -128,7 +133,8 @@ async def ChatCommands(bot, prefix, cur, con):
         await ctx.respond(embed=embed)
 
     @bot.slash_cmd(aliases = ["help link", "help links", "links", "link", "help 🔗"])
-    async def helplinks(ctx):
+    async def helplinks(ctx: slash.Context):
+        "Shows all possible links"
         embed = discord.Embed(title="Link Help",
                             colour=discord.Colour(0x9324b5),
                             description="Hier seht ihr alle Links:")
@@ -153,7 +159,8 @@ async def ChatCommands(bot, prefix, cur, con):
         await ctx.respond(embed=embed)
 
     @bot.slash_cmd(aliases = ["hilfe"])
-    async def help(ctx):
+    async def help(ctx: slash.Context):
+        "In case you need some help..."
         embed = discord.Embed(title="help",
                             colour=discord.Colour(0x9324b5),
                             description="Ich habe verschiedene Help Commands:")
@@ -248,13 +255,15 @@ async def ChatCommands(bot, prefix, cur, con):
 
 
     @bot.slash_cmd(hidden = True)
-    async def wiggle(ctx):
+    async def wiggle(ctx: slash.Context):
+        "wiggle wiggle"
         for i in range(5):
             await ctx.author.send("bigger wiggle\nbigger wiggle\nbigger wiggle\n bigger wiggle\n  bigger wiggle\n   bigger wiggle\n     bigger wiggle\n       bigger wiggle\n         bigger wiggle\n            bigger wiggle\n               bigger wiggle\n                  bigger wiggle\n                     bigger wiggle\n                        bigger wiggle\n                           bigger wiggle\n                              bigger wiggle\n                                 bigger wiggle\n                                    bigger wiggle\n                                       bigger wiggle\n                                         bigger wiggle\n                                           bigger wiggle\n                                             bigger wiggle\n                                              bigger wiggle\n                                               bigger wiggle\n                                                bigger wiggle\n                                                bigger wiggle\n                                                bigger wiggle\n                                                bigger wiggle\n                                               bigger wiggle\n                                              bigger wiggle\n                                             bigger wiggle\n                                           bigger wiggle\n                                         bigger wiggle\n                                       bigger wiggle\n                                    bigger wiggle\n                                 bigger wiggle\n                              bigger wiggle\n                           bigger wiggle\n                        bigger wiggle\n                     bigger wiggle\n                  bigger wiggle\n               bigger wiggle\n            bigger wiggle\n         bigger wiggle\n       bigger wiggle\n     bigger wiggle\n   bigger wiggle\n  bigger wiggle\n bigger wiggle")
         await ctx.respond("Wiggle gesendet")
 
     @bot.slash_cmd(aliases = ["translate"])
-    async def translator(ctx, encryption, content):
+    async def translator(ctx: slash.Context, encryption = "morse", content = "Something's missing"):
+        "Can translate text"
         caesar = {"a": "b", "b": "c", "c": "d", "d": "e", "e": "f", "f": "g", "g": "h", "h": "i", "i": "j", "j": "k", "k": "l", "l": "m", "m": "n", "n": "o", "o": "p", "p": "q", "q": "r", "r": "s", "s": "t", "t": "u", "u": "v", "v": "w", "w": "x", "x": "y", "y": "z", "z": "a", "ä": "ö", "ö": "ü", "ü": "ä", "A": "B", "B": "C", "C": "D", "D": "E", "E": "F", "F": "G", "G": "H", "H": "I", "I": "J", "J": "K", "K": "L", "L": "M", "M": "N", "N": "O", "O": "P", "P": "Q", "Q": "R", "R": "S", "S": "T", "T": "U", "U": "V", "V": "W", "W": "X", "X": "Y", "Y": "Z", "Z": "A", "Ä": "Ö", "Ö": "Ü", "Ü": "Ä", "0": "1", "1": "2", "2": "3", "3": "4", "4": "5", "5": "6", "6": "7", "7": "8", "8": "9", "9": "0"}
         morse = { 'A':'.-', 'B':'-...', 'C':'-.-.', 'D':'-..', 'E':'.', 'F':'..-.', 'G':'--.', 'H':'....', 'I':'..', 'J':'.---', 'K':'-.-', 'L':'.-..', 'M':'--', 'N':'-.', 'O':'---', 'P':'.--.', 'Q':'--.-', 'R':'.-.', 'S':'...', 'T':'-', 'U':'..-', 'V':'...-', 'W':'.--', 'X':'-..-', 'Y':'-.--', 'Z':'--..', '1':'.----', '2':'..---', '3':'...--', '4':'....-', '5':'.....', '6':'-....', '7':'--...', '8':'---..', '9':'----.', '0':'-----', ',':'--..--', '.':'.-.-.-', '?':'..--..', '/':'-..-.', '-':'-....-', '(':'-.--.', ')':'-.--.-', ' ': '/'}
         try:
@@ -290,9 +299,10 @@ async def ChatCommands(bot, prefix, cur, con):
 
 
         #Links
-async def LinkCommands(bot):
+async def LinkCommands(bot, slash):
     @bot.slash_cmd()
-    async def fichbot(ctx):
+    async def fichbot(ctx: slash.Context):
+        "Heyyy, that's me!"
         await ctx.respond(
             "Das bin ich. Was gibt es? Um zu sehen, was ich alles tolles kann, schreib einfach !help \nIch bin ungefähr <t:1594212810:R> erschaffen worden!")
         time.sleep(3)
@@ -300,44 +310,51 @@ async def LinkCommands(bot):
             "Meinen Code findest du natürlich auch auf Github: https://github.com/SpagettiFisch/Fichbot\nEr ist übrigens SEHR gut! ~Cyklon_3000, 2021")
 
     @bot.slash_cmd(alias = "gh")
-    async def github(ctx):
+    async def github(ctx: slash.Context):
+        "Github of my Fish"
         await ctx.respond(
             "Hier geht es zum Github Profil von SpagettiFisch: https://github.com/SpagettiFisch")
 
     @bot.slash_cmd(alias = "tw")
-    async def twitch(ctx):
+    async def twitch(ctx: slash.Context):
+        "Link to Fish's Twitch Account"
         await ctx.respond(
             "Falls er irgendwann mal streamen sollte, wirst du ihn hier finden: https://www.twitch.tv/spagettifisch2")
 
     @bot.slash_cmd(alias = "schton")
-    async def ston(ctx):
+    async def ston(ctx: slash.Context):
+        "Schton"
         await ctx.respond(
             "Das ist ein ganz einsamer Stein, besuch ihn doch mal ;) https://www.twitch.tv/der_ston")
 
     @bot.slash_cmd(aliases = ["slumpfi", "schlumpi", "schlumpfus", "schlumfuß"])
-    async def slumpfus(ctx):
+    async def slumpfus(ctx: slash.Context):
+        "Schlumpfo"
         await ctx.respond(
             "Geht mal zum lieben Slumpfus rüber, lasst einen Follow und Liebe da, dann kann der Fisch endlich seine Bits loswerden^^ "
             "https://www.twitch.tv/slumpfus")
 
 
-async def OwnerCommands(bot, slash):
-    @bot.slash_cmd(hidden = True, role = "Fisch", description = "stop the bot")
+async def OwnerCommands(bot, commands, slash):
+    @bot.slash_cmd(hidden = True, role = "Fisch")#hidden = True, role = "Fisch", description = "stop the bot")
     async def stop(ctx: slash.Context):
+        "Will stop the bot (probably)"
         await ctx.respond("Ja wie denn? xD \nIch könnte das ja mal probie... ")
         print("Ich geh dann mal offline")
         bot.clear()
         await bot.close()
         await sys.exit(1)
 
-    @bot.slash_cmd(hidden=True, role = "Fisch", description = "clear chat")
+    @bot.slash_cmd(hidden=True, role = "Fisch")
     async def clear(ctx: slash.Context, number = 50):
+        "Clears the chat with he specified number"
         messages = await ctx.channel.history(limit=int(number)).flatten()
         for message in messages:
             await message.delete()
 
-    @bot.command(hidden = True, aliases = ["dm"], role = "Fisch", description = "Dm's a user")
+    @bot.command(hidden = True, aliases = ["dm"], role = "Fisch")
     async def DirectMessage(ctx: slash.Context, user, message = "OwO"):
+        "Sends a direct message to an user"
         #Person = await bot.fetch_user(ctx.split('+')[1])
         #Nachricht = ctx.content.split('+')[2]
         await user.send(message)
@@ -345,20 +362,23 @@ async def OwnerCommands(bot, slash):
         if not "Direct Message with" in str(ctx.channel):
             await ctx.delete()
 
-    @bot.command(hidden = True, aliases = ["ai", "ki"], role = "Fisch", description = "Sends a message to a specific channel")
+    @bot.command(hidden = True, aliases = ["ai", "ki"], role = "Fisch")
     async def ArtifactialIntelligence(ctx: slash.Context, channelid, message = "UwU"):
+        "Sends the specified message (or UwU) into the specified channel."
         channel = await bot.fetch_channel(channelid)
         await channel.send(message)
         await ctx.respond("gesendet^^")
         if not "Direct Message with" in str(ctx.channel): 
             await ctx.delete()
     
-    @bot.slash_cmd(description = "test", role = "Fisch")
+    @bot.slash_cmd(role = "Fisch")
     async def test(ctx: slash.Context):
+        "Test 123"
         await ctx.respond('!test')
     
-    @bot.slash_cmd(description = "Verify a person and gives the verify role")
+    @bot.slash_cmd()
     async def verify(ctx: slash.Context):
+        "Verify a person and gives the verify role"
         guild = await bot.fetch_guild(828896352465190932)
         role = discord.utils.get(guild.roles, name='verifiziert')
         await ctx.author.add_roles(role)

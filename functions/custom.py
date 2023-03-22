@@ -61,16 +61,16 @@ async def list_commands(cur, message, discord, prefix):
     
     await message.channel.send(embed=embed)
 
-async def reactionEvent(con, cur, bot):
+async def reactionEvent(con, cur, bot, slash):
     @bot.command()
-    async def init(ctx, name, channel_id, info, emoji, event, role_id = None, message_id = 0):
+    async def init(ctx: slash.Context, name, channel_id, info, emoji, event, role_id = None, message_id = 0):
         reaction_role = False
         if str(event) == 'custom':
             pass
         elif str(event) == 'role':
             reaction_role = True
         else:
-            await ctx.send("Unknown Event")
+            await ctx.respong("Unknown Event")
 
         if reaction_role:
             cur.execute(f'''INSERT OR IGNORE INTO reactionRoles VALUES ('{name}', {channel_id}, {message_id}, '{info}', '{emoji}', {role_id})''')
