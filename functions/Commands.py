@@ -352,7 +352,7 @@ async def OwnerCommands(bot, commands, slash):
         for message in messages:
             await message.delete()
 
-    @bot.command(hidden = True, aliases = ["dm"], role = "Fisch")
+    @bot.slash_cmd(hidden = True, aliases = ["dm"], role = "Fisch")
     async def DirectMessage(ctx: slash.Context, user, message = "OwO"):
         "Sends a direct message to an user"
         #Person = await bot.fetch_user(ctx.split('+')[1])
@@ -362,7 +362,7 @@ async def OwnerCommands(bot, commands, slash):
         if not "Direct Message with" in str(ctx.channel):
             await ctx.delete()
 
-    @bot.command(hidden = True, aliases = ["ai", "ki"], role = "Fisch")
+    @bot.slash_cmd(hidden = True, aliases = ["ai", "ki"], role = "Fisch")
     async def ArtifactialIntelligence(ctx: slash.Context, channelid, message = "UwU"):
         "Sends the specified message (or UwU) into the specified channel."
         channel = await bot.fetch_channel(channelid)

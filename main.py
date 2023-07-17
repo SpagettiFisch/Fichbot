@@ -17,7 +17,6 @@ async def on_ready():
 async def test(ctx: slash.Context):
     "Just a Test Command"
     await ctx.respond('!test')
-
 """
 @bot.slash_cmd(hidden=True)
 async def clear(ctx: slash.Context, number: slash.Option(description='Number of messages to clear', required=True)):
