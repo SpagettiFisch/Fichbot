@@ -2,7 +2,7 @@ import discord
 import random
 import json
 import sqlite3
-from functions import Blacklist, Commands, custom, status as Status, React, xp, log
+from functions import Commands, status as Status
 
 c = open("BotFiles/config.json")
 json_data = json.load(c)
@@ -24,20 +24,21 @@ cur.execute("CREATE TABLE IF NOT EXISTS zitate (zitat text PRIMARY KEY, person t
 cur.execute("CREATE TABLE IF NOT EXISTS reactionRoles (name text PRIMARY KEY, channel_id number, message_id number, info text, emoji text, role_id number)")
 
 
-async def if_ready(bot, commands, slash):
+async def if_ready(bot):
     with open("BotFiles/status", "r") as status_file:
         status = status_file.read()
         await Status.Status(status, bot, discord, status_file)
     print('Status set')
     #person = await bot.fetch_user(734868946825510933)
-    bot.remove_command("help")
-    await Commands.OwnerCommands(bot, commands, slash)
+    #bot.remove_command("help")
+    await Commands.OwnerCommands(bot)
     print('Loaded restricted commands')
-    await Commands.ChatCommands(bot, prefix, cur, con, slash)
+    await Commands.ChatCommands(bot, prefix, cur, con)
     print('Loaded commands')
-    await Commands.LinkCommands(bot, slash)
+    await Commands.LinkCommands(bot)
     print('Loaded links')
-    await custom.reactionEvent(con, cur, bot, slash)
+    #await custom.reactionEvent(con, cur, bot)
+    await bot.sync_commands()
     print(f'{bot.user} has connected to Discord!')
 
 
