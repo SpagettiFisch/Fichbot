@@ -2,6 +2,7 @@ import discord
 import random
 import json
 import sqlite3
+from discord import default_permissions
 from functions import Commands, status as Status
 
 c = open("BotFiles/config.json")

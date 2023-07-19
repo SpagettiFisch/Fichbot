@@ -1,4 +1,5 @@
 import requests, time, random, sys, re, math, discord
+from discord import default_permissions
 
 async def ChatCommands(bot, prefix, cur, con):
     @bot.slash_command()
@@ -334,6 +335,7 @@ async def LinkCommands(bot):
 
 async def OwnerCommands(bot):
     @bot.slash_command(hidden = True, role = "Fisch")#hidden = True, role = "Fisch", description = "stop the bot")
+    @default_permissions(administrator=True)
     async def stop(ctx):
         "Will stop the bot (probably)"
         await ctx.respond("Ja wie denn? xD \nIch könnte das ja mal probie... ")
@@ -343,6 +345,7 @@ async def OwnerCommands(bot):
         await sys.exit(1)
 
     @bot.slash_command(hidden=True, role = "Fisch")
+    @default_permissions(administrator=True)
     async def clear(ctx, number: int = 50):
         "Clears the chat with he specified number"
         messages = await ctx.channel.history(limit=int(number)).flatten()
@@ -350,6 +353,7 @@ async def OwnerCommands(bot):
             await message.delete()
 
     @bot.slash_command(hidden = True, aliases = ["dm"], role = "Fisch")
+    @default_permissions(administrator=True)
     async def direct_message(ctx, user, message = "OwO"):
         "Sends a direct message to an user"
         #Person = await bot.fetch_user(ctx.split('+')[1])
@@ -360,6 +364,7 @@ async def OwnerCommands(bot):
             await ctx.delete()
 
     @bot.slash_command(hidden = True, aliases = ["ai", "ki"], role = "Fisch")
+    @default_permissions(administrator=True)
     async def artifactial_intelligence(ctx, channelid, message = "UwU"):
         "Sends the specified message (or UwU) into the specified channel."
         channel = await bot.fetch_channel(channelid)
@@ -369,11 +374,13 @@ async def OwnerCommands(bot):
             await ctx.delete()
     
     @bot.slash_command(role = "Fisch")
+    @default_permissions(administrator=True)
     async def testi(ctx):
         "Test 123"
         await ctx.respond('!test')
 
     @bot.slash_command(hidden = True, role = "Fisch")
+    @default_permissions(administrator=True)
     async def button_text(ctx, text: str):
         "specify a message for the bot to send with buttons"
         await ctx.respond(text, )

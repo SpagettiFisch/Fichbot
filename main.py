@@ -1,4 +1,5 @@
 import discord, json, time
+from discord import default_permissions
 from functions import command_selection
 c = open("BotFiles/config.json")
 json_data = json.load(c)
@@ -16,6 +17,7 @@ async def ping(ctx): # a slash command will be created with the name "ping"
     await ctx.respond(f"Pong! Latency is {round(bot.latency * 10 ** 3, 4)}ms")
 
 @bot.slash_command(role='Fisch')
+@default_permissions(administrator=True)
 async def sync(ctx):
     "Reloads all slash commands and synces them."
     print("\nReloading Commands...", ephemeral=True)
@@ -23,16 +25,10 @@ async def sync(ctx):
     await command_selection.if_ready(bot)
 
 @bot.slash_command(description="Just a Test Command")
+@default_permissions(administrator=True)
 async def test(ctx):
     await ctx.respond('!test')
-"""
-@bot.slash_cmd(hidden=True)
-async def clear(ctx: slash.Context, number: slash.Option(description='Number of messages to clear', required=True)):
-    "Can clear a specific number of messages in the used channel"
-    messages = await ctx.channel.history(limit=int(number)).flatten()
-    for message in messages:
-        await message.delete()
-"""
+
 
 
 bot.run(token)
