@@ -333,7 +333,7 @@ async def LinkCommands(bot):
             "https://www.twitch.tv/slumpfus")
 
 
-async def OwnerCommands(bot):
+async def OwnerCommands(bot, view=0):
     @bot.slash_command(hidden = True, role = "Fisch")#hidden = True, role = "Fisch", description = "stop the bot")
     @default_permissions(administrator=True)
     async def stop(ctx):
@@ -379,16 +379,3 @@ async def OwnerCommands(bot):
         "Test 123"
         await ctx.respond('!test')
 
-    @bot.slash_command(hidden = True, role = "Fisch")
-    @default_permissions(administrator=True)
-    async def button_text(ctx, text: str):
-        "specify a message for the bot to send with buttons"
-        await ctx.respond(text, )
-        
-    @bot.slash_command()
-    async def verify(ctx):
-        "Verify a person and gives the verify role"
-        guild = await bot.fetch_guild(828896352465190932)
-        role = discord.utils.get(guild.roles, name='verifiziert')
-        await ctx.author.add_roles(role)
-        await ctx.respond('Erfolgreich verifiziert') 

@@ -3,7 +3,7 @@ import random
 import json
 import sqlite3
 from discord import default_permissions
-from functions import Commands, status as Status
+from functions import Commands, status as Status, verification
 
 c = open("BotFiles/config.json")
 json_data = json.load(c)
@@ -22,11 +22,11 @@ cur = con.cursor()
 cur.execute("CREATE TABLE IF NOT EXISTS users (id number PRIMARY KEY, username text, nickname text, color text, avatar text, experience number)")
 cur.execute("CREATE TABLE IF NOT EXISTS customcommands (trigger text PRIMARY KEY, command text)")
 cur.execute("CREATE TABLE IF NOT EXISTS zitate (zitat text PRIMARY KEY, person text, jahr number)")
-cur.execute("CREATE TABLE IF NOT EXISTS reactionRoles (name text PRIMARY KEY, channel_id number, message_id number, info text, emoji text, role_id number)")
+cur.execute("CREATE TABLE IF NOT EXISTS reactionRoles (message_id number PRIMARY KEY, emoji text)")
 
 
 async def if_ready(bot):
-    with open("BotFiles/status", "r") as status_file:
+    """with open("BotFiles/status", "r") as status_file:
         status = status_file.read()
         await Status.Status(status, bot, discord, status_file)
     print('Status set')
@@ -39,8 +39,9 @@ async def if_ready(bot):
     await Commands.LinkCommands(bot)
     print('Loaded links')
     #await custom.reactionEvent(con, cur, bot)
-    await bot.sync_commands()
-    print(f'{bot.user} has connected to Discord!')
+    await verification.commands(bot)
+    await bot.sync_commands()"""
+    print('finished loading!')
 
 
 async def if_message(message, bot):
@@ -272,5 +273,21 @@ async def if_member_update(before, after, bot):
 
 
 
-async def if_reaction_add(bot):
-    pass
+async def verificationReaction(bot, reaction, is_removed):
+    if reaction.user_id == bot.user.id:
+        return
+    with open('BotFiles/verification', 'r', encoding="utf-8") as f:
+        data = f.read().splitlines()
+        emoji = data[0].split(': ')[1].strip()
+        id = data[1].split(': ')[1].strip()
+    if int(reaction.message_id) != int(id):
+        return
+    if reaction.emoji.name != emoji:
+        return
+    guild = await bot.fetch_guild(828896352465190932)
+    member = await guild.fetch_member(reaction.user_id)
+    if not is_removed:
+        role = discord.utils.get(guild.roles, name='verifiziert')
+        await member.add_roles(role)
+    else:
+        await member.edit(roles=[])
