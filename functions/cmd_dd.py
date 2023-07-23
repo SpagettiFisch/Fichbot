@@ -22,7 +22,7 @@ async def Roulette(random, message, userID, discord, cur, con, prefix):
         gesetzt = message.content.split(' ')[2]
     except:
         gesetzt = 0
- 
+
     uxp = cur.execute(f"SELECT experience FROM users WHERE id = {userID}")
     uxp = cur.fetchall()
     uxp = str(uxp).removeprefix("[(").removesuffix(",)]")

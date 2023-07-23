@@ -1,25 +1,25 @@
-async def status(Status, client, discord, s):
+async def Status(status, client, discord, s):
     try:
-        if str(Status).lower().split()[1] == "game":
+        if str(status).lower().split()[1] == "game":
             await client.change_presence(
-                activity=discord.Game(name=f"{str(Status).split(' ', 2)[2]}"))
+                activity=discord.Game(name=f"{str(status).split(' ', 2)[2]}"))
 
-        elif str(Status).lower().split()[1] == "stream":
+        elif str(status).lower().split()[1] == "stream":
             await client.change_presence(
-                activity=discord.Streaming(name=f"{str(Status).split(' ', 2)[2]}",
-                                            url=f"https://twitch.tv/{str(Status).split(' ', 2)[2]}"))
+                activity=discord.Streaming(name=f"{str(status).split(' ', 2)[2]}",
+                                            url=f"https://twitch.tv/{str(status).split(' ', 2)[2]}"))
 
-        elif str(Status).lower().split()[1] == "listen":
+        elif str(status).lower().split()[1] == "listen":
             await client.change_presence(
                 activity=discord.Activity(type=discord.ActivityType.listening,
-                                            name=f"{str(Status).split(' ', 2)[2]}"))
+                                            name=f"{str(status).split(' ', 2)[2]}"))
 
-        elif str(Status).lower().split()[1] == "watch":
+        elif str(status).lower().split()[1] == "watch":
             await client.change_presence(
                 activity=discord.Activity(type=discord.ActivityType.watching,
-                                            name=f"{str(Status).split(' ', 2)[2]}"))
+                                            name=f"{str(status).split(' ', 2)[2]}"))
         elif "mode='w'" in str(s):
-            s.writelines(str(Status))
+            s.writelines(str(status))
     except:
         print("Ungültiger Status")
         pass

@@ -1,26 +1,28 @@
-import discord, json
-from functions import if_abfragen
+import discord, json, time
+from discord.ext import commands
+from functions import command_selection
+from discord.ext import slash
 c = open("BotFiles/config.json")
 json_data = json.load(c)
 token = json_data["token"]
 intents = discord.Intents.all()
+bot = slash.slashBot(command_prefix='!', intents=intents)
 
-class MyClient(discord.Client):
+@bot.event
+async def on_ready():
+    print(f'{bot.user} has connected to Discord!')
 
-    async def on_ready(self):
-        await if_abfragen.if_ready(client)
+@bot.slash_cmd()
+async def test(ctx):
+    await ctx.send('!test')
 
-    async def on_message(self, message):
-        await if_abfragen.if_message(message, client)
+@bot.slash_cmd(hidden=True)
+async def clear(ctx, number):
+    messages = await ctx.channel.history(limit=int(number)).flatten()
+    for message in messages:
+        await message.delete()
 
-    async def on_message_edit(self, before, after):
-        await if_abfragen.if_edit(before, after, client)
 
-    async def on_message_delete(self, message):
-        await if_abfragen.if_delete(message, client)
-  
-    async def on_member_update(self, before, after):
-        await if_abfragen.if_member_update(before, after, client)
-
-client = MyClient(intents=intents)
-client.run(token)
+bot.run(token)
+#client = MyClient(intents=intents)
+#client.run(token)
