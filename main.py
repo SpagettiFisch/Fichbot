@@ -23,7 +23,7 @@ async def on_raw_reaction_remove(reaction):
 
 @bot.slash_command(description="Sends the bot's latency.") # this decorator makes a slash command
 async def ping(ctx): # a slash command will be created with the name "ping"
-    await ctx.respond(f"Pong! Latency is {round(bot.latency * 10 ** 3, 4)}ms")
+    await ctx.respond(f"Pong! Latency is {round(bot.latency * 10 ** 3, 3)}ms")
 
 @bot.slash_command(role='Fisch')
 @default_permissions(administrator=True)
