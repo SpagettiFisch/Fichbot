@@ -12,8 +12,8 @@ async def ChatCommands(bot, prefix, cur, con):
         witz = str(witz).replace("['", "").replace("']", "")
         await ctx.respond(witz.replace("', '", "").replace(".", ". ").replace("?", "? ").replace("!", "! "))
 
-    @bot.slash_command()
-    async def dice(ctx, start: int = 1, end: int = 6):
+    @bot.slash_cmd()
+    async def dice(ctx: slash.Context, start: int = 1, end: int = 6):
         "Gives out a random number in range of the given ones"
         try:
             number = random.randint(int(start), int(end))
@@ -105,7 +105,7 @@ async def ChatCommands(bot, prefix, cur, con):
     @bot.slash_command(hidden = True)
     async def credits(ctx):
         "Just gives credits to my huggabable creator"
-        await ctx.author.send("`Dieser Bot wurde von SpagettiFisch programmiert`")
+        await ctx.respond("Dieser Bot wurde von SpagettiFisch programmiert", ephemeral=True)
 
     @bot.slash_command(aliases = ["help cmd", "help cmds", "help command", "help commands"])
     async def helpcommands(ctx):
@@ -131,7 +131,7 @@ async def ChatCommands(bot, prefix, cur, con):
         embed.add_field(name=f"{prefix}translate <Sprache> <Text>",
                         value="_Übersetzt den eingegebenen Text in eine gewählte Verschlüsselung_",
                         inline=False)
-        await ctx.respond(embed=embed)
+        await ctx.respond(embed=embed, ephemeral=True)
 
     @bot.slash_command(aliases = ["help link", "help links", "links", "link", "help 🔗"])
     async def helplinks(ctx):
@@ -157,7 +157,7 @@ async def ChatCommands(bot, prefix, cur, con):
         embed.add_field(name=f"{prefix}credits",
                         value="Das wird meinen Programmierer leaken :c",
                         inline=False)
-        await ctx.respond(embed=embed)
+        await ctx.respond(embed=embed, ephemeral=True)
 
     @bot.slash_command(aliases = ["hilfe"])
     async def help(ctx):
@@ -171,7 +171,7 @@ async def ChatCommands(bot, prefix, cur, con):
         embed.add_field(name="!help links",
                         value="_zeigt die Hilfe für Links und Credits an_",
                         inline=False)
-        await ctx.respond(embed=embed)
+        await ctx.respond(embed=embed, ephemeral=True)
 
 
     async def Zitat(message, client, owner, cur, con):
@@ -269,7 +269,7 @@ async def ChatCommands(bot, prefix, cur, con):
         try:
             translated_text = ""
         except:
-            await ctx.respond(f"Fehlende Argumente :c \nDu musst '!translate <Sprache> <Text>' verwenden")
+            await ctx.respond(f"Fehlende Argumente :c \nDu musst '!translate <Sprache> <Text>' verwenden", ephemeral=True)
 
         if str(encryption) == "caesar":
             for letter in content:
@@ -286,13 +286,13 @@ async def ChatCommands(bot, prefix, cur, con):
                     translated_text += letter
         
         else:
-            await ctx.respond(f"Die angegebene Sprache ({encryption}) existiert nicht :/\nEs gibt zur Zeit nur caesar und morse!")
+            await ctx.respond(f"Die angegebene Sprache ({encryption}) existiert nicht :/\nEs gibt zur Zeit nur caesar und morse!", ephemeral=True)
             return
         
         try:
             await ctx.author.send(f"{content} → {translated_text}")
         except:
-            await ctx.respond("Nachricht konnte nicht gesendet werden")
+            await ctx.respond("Nachricht konnte nicht gesendet werden", ephemeral=True)
 
 
 
@@ -302,7 +302,7 @@ async def LinkCommands(bot):
     async def fichbot(ctx):
         "Heyyy, that's me!"
         await ctx.respond(
-            "Das bin ich. Was gibt es? Um zu sehen, was ich alles tolles kann, schreib einfach !help \nIch bin ungefähr <t:1594212810:R> erschaffen worden!")
+            "Das bin ich. Was gibt es? Um zu sehen, was ich alles tolles kann, schreib einfach !help \nIch bin ungefähr <t:1594212810:R> erschaffen worden!", ephemeral=True)
         time.sleep(3)
         await ctx.respond(
             "Meinen Code findest du natürlich auch auf Github: https://github.com/SpagettiFisch/Fichbot\nEr ist übrigens SEHR gut! ~Cyklon_3000, 2021")
@@ -311,26 +311,26 @@ async def LinkCommands(bot):
     async def github(ctx):
         "Github of my Fish"
         await ctx.respond(
-            "Hier geht es zum Github Profil von SpagettiFisch: https://github.com/SpagettiFisch")
+            "Hier geht es zum Github Profil von SpagettiFisch: https://github.com/SpagettiFisch", ephemeral=True)
 
     @bot.slash_command(alias = "tw")
     async def twitch(ctx):
         "Link to Fish's Twitch Account"
         await ctx.respond(
-            "Falls er irgendwann mal streamen sollte, wirst du ihn hier finden: https://www.twitch.tv/spagettifisch2")
+            "Falls er irgendwann mal streamen sollte, wirst du ihn hier finden: https://www.twitch.tv/spagettifisch2", ephemeral=True)
 
     @bot.slash_command(alias = "schton")
     async def ston(ctx):
         "Schton"
         await ctx.respond(
-            "Das ist ein ganz einsamer Stein, besuch ihn doch mal ;) https://www.twitch.tv/der_ston")
+            "Das ist ein ganz einsamer Stein, besuch ihn doch mal ;) https://www.twitch.tv/der_ston", ephemeral=True)
 
     @bot.slash_command(aliases = ["slumpfi", "schlumpi", "schlumpfus", "schlumfuß"])
     async def slumpfus(ctx):
         "Schlumpfo"
         await ctx.respond(
             "Geht mal zum lieben Slumpfus rüber, lasst einen Follow und Liebe da, dann kann der Fisch endlich seine Bits loswerden^^ "
-            "https://www.twitch.tv/slumpfus")
+            "https://www.twitch.tv/slumpfus", ephemeral=True)
 
 
 async def OwnerCommands(bot, view=0):
@@ -338,7 +338,7 @@ async def OwnerCommands(bot, view=0):
     @default_permissions(administrator=True)
     async def stop(ctx):
         "Will stop the bot (probably)"
-        await ctx.respond("Ja wie denn? xD \nIch könnte das ja mal probie... ")
+        await ctx.respond("Ja wie denn? xD \nIch könnte das ja mal probie... ", ephemeral=True)
         print("Ich geh dann mal offline")
         bot.clear()
         await bot.close()
@@ -359,9 +359,7 @@ async def OwnerCommands(bot, view=0):
         #Person = await bot.fetch_user(ctx.split('+')[1])
         #Nachricht = ctx.content.split('+')[2]
         await user.send(message)
-        await ctx.respond("gesendet^^")
-        if not "Direct Message with" in str(ctx.channel):
-            await ctx.delete()
+        await ctx.respond("gesendet^^", ephemeral=True)
 
     @bot.slash_command(hidden = True, aliases = ["ai", "ki"], role = "Fisch")
     @default_permissions(administrator=True)
@@ -369,13 +367,18 @@ async def OwnerCommands(bot, view=0):
         "Sends the specified message (or UwU) into the specified channel."
         channel = await bot.fetch_channel(channelid)
         await channel.send(message)
-        await ctx.respond("gesendet^^")
-        if not "Direct Message with" in str(ctx.channel): 
-            await ctx.delete()
+        await ctx.respond("gesendet^^", ephemeral=True)
     
     @bot.slash_command(role = "Fisch")
     @default_permissions(administrator=True)
     async def testi(ctx):
         "Test 123"
         await ctx.respond('!test')
-
+    
+    @bot.slash_cmd()
+    async def verify(ctx: slash.Context):
+        "Verify a person and gives the verify role"
+        guild = await bot.fetch_guild(828896352465190932)
+        role = discord.utils.get(guild.roles, name='verifiziert')
+        await ctx.author.add_roles(role)
+        await ctx.respond('Erfolgreich verifiziert', ephemeral=True)
